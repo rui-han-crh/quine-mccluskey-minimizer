@@ -1,0 +1,3 @@
+class AppObject {
+  const AppObject();
+}
