@@ -19,9 +19,9 @@ void main() {
       'Given two independently constructed variables, when compared with equality, then correctly determines them to be equal',
       () async {
     // Arrange
-    Variable variableA = Variable("a");
+    Variable variableA = const Variable("a");
 
-    Variable variableB = Variable("a");
+    Variable variableB = const Variable("a");
 
     // Act
     bool isEqual = variableB == variableA;

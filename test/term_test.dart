@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:proof_map/multilevel_joined_term.dart';
+import 'package:proof_map/joined_term.dart';
 import 'package:proof_map/literal_term.dart';
 import 'package:proof_map/term.dart';
 import 'package:proof_map/variable.dart';

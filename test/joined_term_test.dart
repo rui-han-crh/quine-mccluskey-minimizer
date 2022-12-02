@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:proof_map/multilevel_joined_term.dart';
+import 'package:proof_map/disjunctive_normal_form.dart';
+import 'package:proof_map/joined_term.dart';
 import 'package:proof_map/literal_term.dart';
 import 'package:proof_map/term.dart';
 import 'package:proof_map/variable.dart';
@@ -282,10 +283,10 @@ void main() {
     JoinedTerm together = JoinedTerm(isConjunction: true, terms: [left, right]);
 
     // Act
-    JoinedTerm convertedTerm = together.toDisjunctiveNormalForm();
+    DisjunctiveNormalForm convertedTerm = together.toDisjunctiveNormalForm();
 
     // Assert
-    expect(convertedTerm.statement, "(A · B) + (A · B · C)");
+    expect(convertedTerm.joinedTerm.statement, "(A · B) + (A · B · C)");
   });
 
   test(
@@ -299,10 +300,10 @@ void main() {
         JoinedTerm(isConjunction: true, terms: [left, middle, right]);
 
     // Act
-    JoinedTerm convertedTerm = together.toDisjunctiveNormalForm();
+    DisjunctiveNormalForm convertedTerm = together.toDisjunctiveNormalForm();
 
     // Assert
-    expect(convertedTerm.statement, "(A · B · C) + (A · B)");
+    expect(convertedTerm.joinedTerm.statement, "(A · B · C) + (A · B)");
   });
 
   test(
@@ -316,10 +317,10 @@ void main() {
         JoinedTerm(isConjunction: true, terms: [left, middle, right]);
 
     // Act
-    JoinedTerm convertedTerm = together.toDisjunctiveNormalForm();
+    DisjunctiveNormalForm convertedTerm = together.toDisjunctiveNormalForm();
 
     // Assert
-    expect(convertedTerm.statement, "(A · B' · C)");
+    expect(convertedTerm.joinedTerm.statement, "(A · B' · C)");
   });
 
   test(
@@ -331,10 +332,11 @@ void main() {
     JoinedTerm together = termA.disjunction(termB, cAndD, dAndC);
 
     // Act
-    JoinedTerm convertedTerm = together.toDisjunctiveNormalForm();
+    DisjunctiveNormalForm convertedTerm = together.toDisjunctiveNormalForm();
 
     // Assert
-    expect(convertedTerm, termA.disjunction(termB, termC.conjunction(termD)));
+    expect(convertedTerm.joinedTerm,
+        termA.disjunction(termB, termC.conjunction(termD)));
   });
 
   test(
@@ -349,11 +351,11 @@ void main() {
         JoinedTerm(isConjunction: false, terms: [left, middle, right]);
 
     // Act
-    JoinedTerm convertedTerm = together.toDisjunctiveNormalForm();
+    DisjunctiveNormalForm convertedTerm = together.toDisjunctiveNormalForm();
 
     // Assert
-    expect(convertedTerm.statement, "(A · B) + (A' · C) + (B · C)");
-    expect(convertedTerm, together);
+    expect(convertedTerm.joinedTerm.statement, "(A · B) + (A' · C) + (B · C)");
+    expect(convertedTerm.joinedTerm, together);
   });
 
   test(
@@ -366,12 +368,12 @@ void main() {
         JoinedTerm(isConjunction: false, terms: [left, right]);
 
     // Act
-    JoinedTerm convertedTerm = together.toDisjunctiveNormalForm();
+    DisjunctiveNormalForm convertedTerm = together.toDisjunctiveNormalForm();
 
     // Assert
-    expect(convertedTerm.statement, "(A · B) + (C · D)");
+    expect(convertedTerm.joinedTerm.statement, "(A · B) + (C · D)");
     expect(
-        convertedTerm,
+        convertedTerm.joinedTerm,
         JoinedTerm(isConjunction: false, terms: [
           JoinedTerm(isConjunction: true, terms: [termA, termB]),
           JoinedTerm(isConjunction: true, terms: [termC, termD])
@@ -391,7 +393,7 @@ void main() {
     JoinedTerm together = left.disjunction(right);
 
     // Act
-    JoinedTerm convertedTerm = together.toDisjunctiveNormalForm();
+    DisjunctiveNormalForm convertedTerm = together.toDisjunctiveNormalForm();
 
     // Assert
     JoinedTerm minTermSeven = termB.conjunction(termNotA, termC, termD);
@@ -400,6 +402,6 @@ void main() {
     JoinedTerm minTermTwelveToFifteen = termA.conjunction(termB);
     JoinedTerm expected = minTermSeven.disjunction(
         minTermFiveAndSeven, minTermSevenAndFifteen, minTermTwelveToFifteen);
-    expect(convertedTerm, expected);
+    expect(convertedTerm.joinedTerm, expected);
   });
 }

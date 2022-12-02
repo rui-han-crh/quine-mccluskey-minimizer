@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:proof_map/app_object.dart';
-import 'package:proof_map/multilevel_joined_term.dart';
+import 'package:proof_map/joined_term.dart';
 import 'package:proof_map/varargs_function.dart';
 
 abstract class Term extends AppObject with EquatableMixin {

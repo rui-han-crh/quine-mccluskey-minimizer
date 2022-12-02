@@ -1,5 +1,8 @@
+import 'package:proof_map/disjunctive_normal_form.dart';
 import 'package:proof_map/literal_term.dart';
 import 'package:proof_map/term.dart';
+
+import 'minterm.dart';
 
 class JoinedTerm extends Term {
   final bool _isConjunction;
@@ -7,6 +10,8 @@ class JoinedTerm extends Term {
 
   @override
   List<Object?> get props => [_isConjunction, _terms];
+
+  Iterable<Term> get enclosedTerms => _terms;
 
   bool get isConjunction => _isConjunction;
 
@@ -72,23 +77,24 @@ class JoinedTerm extends Term {
   /// Returns true only if the term is a joined term and contains only a
   /// literal one with no other terms
   static bool _joinedTermIsLiteralOne(Term term) =>
-      (term is JoinedTerm && term._terms.first == LiteralTerm.one);
+      (term is JoinedTerm && term.enclosedTerms.first == LiteralTerm.one);
 
   /// Returns true only if the term is a joined term and contains only a
   /// literal zero with no other terms
   static bool _joinedTermIsLiteralZero(Term term) =>
-      (term is JoinedTerm && term._terms.first == LiteralTerm.zero);
+      (term is JoinedTerm && term.enclosedTerms.first == LiteralTerm.zero);
 
   // Simplifies the terms using Quine-McCluskey
   JoinedTerm simplify() {
     // TODO: finish simplify sequence
-    JoinedTerm disjunctiveNormal = toDisjunctiveNormalForm();
-    return disjunctiveNormal;
+    //Iterable<Minterm> minterms = toDisjunctiveNormalForm().getMinterms();
+
+    return toDisjunctiveNormalForm().joinedTerm;
   }
 
-  JoinedTerm toDisjunctiveNormalForm() {
+  DisjunctiveNormalForm toDisjunctiveNormalForm() {
     bool isConjunction = _isConjunction;
-    List<Term> currentTree = _terms.toList();
+    List<Term> currentTree = enclosedTerms.toList();
 
     // Linearly flatten if main tree operator is the same as subtree operator
     for (int i = 0; i < currentTree.length; i++) {
@@ -97,20 +103,21 @@ class JoinedTerm extends Term {
         continue;
       }
       // Step 1: Recursively apply the operation to subtrees
-      JoinedTerm newSubTree = term.toDisjunctiveNormalForm();
+      JoinedTerm newSubTree = term.toDisjunctiveNormalForm().joinedTerm;
       currentTree[i] = newSubTree;
 
       // Step 2: Flatten subtrees if same operators
       if (newSubTree._isConjunction == isConjunction) {
         currentTree.removeAt(i);
-        currentTree.insertAll(i, newSubTree._terms);
-        i += newSubTree._terms.length - 1;
+        currentTree.insertAll(i, newSubTree.enclosedTerms);
+        i += newSubTree.enclosedTerms.length - 1;
       }
     }
 
     // If main tree is disjunction, the tree is sufficiently flattened
     if (!isConjunction) {
-      return JoinedTerm(isConjunction: false, terms: currentTree);
+      return _DisjunctiveNormalForm(
+          JoinedTerm(isConjunction: false, terms: currentTree));
     }
 
     // Distribute the disjunctions terms until the main branch stops mutating
@@ -124,7 +131,7 @@ class JoinedTerm extends Term {
       }
 
       List<Term> mutatedTree = [];
-      for (Term child in subtree._terms) {
+      for (Term child in subtree.enclosedTerms) {
         mutatedTree.add(JoinedTerm(
             isConjunction: isConjunction,
             terms: currentTree.sublist(0, i) +
@@ -133,8 +140,9 @@ class JoinedTerm extends Term {
       }
       JoinedTerm mutatedTerms =
           JoinedTerm(isConjunction: false, terms: mutatedTree)
-              .toDisjunctiveNormalForm();
-      currentTree = mutatedTerms._terms.toList();
+              .toDisjunctiveNormalForm()
+              .joinedTerm;
+      currentTree = mutatedTerms.enclosedTerms.toList();
       isConjunction = false;
       break;
     }
@@ -148,25 +156,35 @@ class JoinedTerm extends Term {
       }
 
       currentTree.removeAt(i);
-      currentTree.insertAll(i, child._terms);
-      i += child._terms.length - 1;
+      currentTree.insertAll(i, child.enclosedTerms);
+      i += child.enclosedTerms.length - 1;
     }
 
-    return JoinedTerm(isConjunction: isConjunction, terms: currentTree);
+    return _DisjunctiveNormalForm(
+        JoinedTerm(isConjunction: isConjunction, terms: currentTree));
   }
 
   // Describes this term as a statement
   @override
-  String get statement => _terms
+  String get statement => enclosedTerms
       .map((e) => e is JoinedTerm ? "(${e.statement})" : e.statement)
       .join(_isConjunction ? " · " : " + ");
 
   /// Applies DeMorgan's Law to the present list of terms to perform negation
   @override
   Term negate() => JoinedTerm(
-      isConjunction: !_isConjunction, terms: _terms.map((t) => t.negate()));
+      isConjunction: !_isConjunction,
+      terms: enclosedTerms.map((t) => t.negate()));
 
   @override
   String toString() =>
       "${isConjunction ? "Conjunction" : "Disjunction"} | $statement";
+}
+
+class _DisjunctiveNormalForm extends DisjunctiveNormalForm {
+  final JoinedTerm _joinedTerm;
+  @override
+  JoinedTerm get joinedTerm => _joinedTerm;
+
+  _DisjunctiveNormalForm(this._joinedTerm);
 }
