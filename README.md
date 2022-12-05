@@ -1,5 +1,17 @@
 # Quine McCluskey
 
+## Overview
+This program is designed to accept a boolean expression and return a simplified expression, minimized via the Quine-McCluskey algorithm and other ancillary algorithms.
+
+Dependencies are used (read [Acknowledgements](#acknowledgements)), but are unrelated to the implementation of the algorithm. 
+
+The implementation of the Quine-McCluskey algorithm in this program, including the accompanying tests, have been written entirely by myself. To read more about the implementation details regarding the algorithm, see [Implementation Brief](#implementation-brief).
+
+## Acknowledgements
+Dependency packages used are `flutter`, `equatable 2.0.0` and `sprintf 7.0.0`.
+
+## Implementation Brief
+
 [Quine McCluskey](https://en.wikipedia.org/wiki/Quine%E2%80%93McCluskey_algorithm) is a method that takes in a set of minterms and produces the essential prime implicants that covers all the minterms. When combined with disjunctions, this produces the simplest disjunctive normal form (DNF), also known as the sum of products (SOP) expression.
 
 The implementation in this program will take in _any_ boolean expression and automatically group it into a naive disjunctive normal form. This is done through expressing each group of terms with the same operator in Polish notation, such that they form a tree.
