@@ -1,8 +1,8 @@
 # Quine McCluskey
 
-Quine McCluskey is a method that takes in a set of minterms and produces the essential prime implicants that covers all the minterms. When combined with disjunctions, this produces the simplest disjunctive normal form, also known as the sum of products expression.
+[Quine McCluskey](https://en.wikipedia.org/wiki/Quine%E2%80%93McCluskey_algorithm) is a method that takes in a set of minterms and produces the essential prime implicants that covers all the minterms. When combined with disjunctions, this produces the simplest disjunctive normal form (DNF), also known as the sum of products expression.
 
-The implementation in this program will take in _any_ boolean expression and automatically group it into a naive disjunctive normal form (DNF). This is done through expressing each group of terms with the same operator in Polish notation, such that they form a tree.
+The implementation in this program will take in _any_ boolean expression and automatically group it into a naive disjunctive normal form. This is done through expressing each group of terms with the same operator in Polish notation, such that they form a tree.
 ```
              + 
        _____ |_______  
