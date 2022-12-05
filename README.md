@@ -90,48 +90,52 @@ We express the prime implicants as notational variables and the minterms that th
 
 For example, for a set of 6 prime implicants recovered, we may express this problem domain in the table form:
 
-| Minterms \ PI |  x1 | x2 | x3 | x4 | x5 | x6 |
-|---------------|-----|----|----|----|----|--- |
-|      2        |  1  |  1 |    |    |    |    |
-|      3        |  1  |    |    |    | 1  |    |
-|      4        |     |    |  1 |    |    |    |
-|      5        |     |    |  1 |    |    |  1 |
-|      7        |     |    |    |    | 1  |  1 |
-|      8        |     |    |    | 1  |    |    |
-|     10        |     |  1 |    | 1  |    |    |
-|     13        |     |    |    |    |    |  1 |
-|     15        |     |    |    |    |    |  1 |
+| Minterms \ PI |  x₁ | x₂ | x₃ | x₄ | x₅ | x₆ |  Constraint Function |
+|---------------|-----|----|----|----|----|--- |----------------------|
+|      2        |  1  |  1 |    |    |    |    | x1 + x2 ≥ 1          |
+|      3        |  1  |    |    |    | 1  |    | x1 + x5 ≥ 1          |
+|      4        |     |    |  1 |    |    |    | x3 ≥ 1               |
+|      5        |     |    |  1 |    |    |  1 | x3 + x6 ≥ 1          |
+|      7        |     |    |    |    | 1  |  1 | x5 + x6 ≥ 1          |
+|      8        |     |    |    | 1  |    |    | x4 ≥ 1               |
+|     10        |     |  1 |    | 1  |    |    | x2 + x4 ≥ 1          |
+|     13        |     |    |    |    |    |  1 | x6 ≥ 1               |
+|     15        |     |    |    |    |    |  1 | x6 ≥ 1               |
 
-A `1` represents that the `x_i` prime implicant covers the minterm number on the right, so `x1` covers minterms `2` and `3`, `x2` covered `2` and `10`, etc, up to `x6` covering `5, 7, 13, 15`.
+A `1` represents that the `x_i` prime implicant covers the minterm number on the right, so `x₁` covers minterms `2` and `3`, `x₂` covered `2` and `10`, etc, up to `x₆` covering `5, 7, 13, 15`.
 
-The first row represents our _objective function_ `x1 + x2 + ... + x6 = Z`, such that `x_i ∈ {0, 1}` for `1 ≤ i ≤ 6`, and `Z` must be _minimized_.
+The first row represents our _objective function_ `x₁ + x₂ + x₃ + x₄ + x₅ + x₆= Z`, such that `xᵢ ∈ {0, 1}` for `1 ≤ i ≤ 6`, and `Z` must be _minimized_.
 
 Every subsequent row then represents our constraint function, of all which must be greater than or equal to zero, as at least 1 prime implicant must cover the minterm.
 
-So, the first constraint is `x1 + x2 ≥ 1`, the second constraint is `x1 + x5 ≥ 1`, etc. Then, we append a constraint for each `x_i`, such that `x_i ≤ 1`, so that x_i falls in the domain {0, 1}.
+Then, we append a constraint for each `xᵢ`, such that `xᵢ ≤ 1` for `1 ≤ i ≤ 6`, so that `xᵢ` falls in the domain `{0, 1}`.
 
-The intricacies of the representation of constraint functions in the implementation and the details of the Simplex Method will be omitted in this brief. 
+Slack and artificial variables are appended to each constraint function on top of the existing variables based on the nature of expression's inequality. This produces a matrix of constraint functions (rows) against all variables (columns). 
 
-Generally, the Simplex Method with Big M appends slack and aritificial variables to each constraint function on top of exisiting variables based on the nature of expression's inequality and produces a matrix, call it the _A matrix_, of constraint functions (rows) against all variables (columns). 
+|  Relation | Slack Variable               | Artificial Variable          |
+|-----------|------------------------------|------------------------------|
+|     ≥     | assigned with coefficient -1 | assigned with coefficient 1  |
+|     ≤     | assigned with coefficient  1 | not assigned                 |
+|     =     | not assigned                 | assigned with coefficient 1  |
 
-If the inequality is `≤`, we append only a slack variable. If the inequality is `≥`, we append both a slack and an artificial variable. Otherwise, if it is an equality `=`, we append only an artificial variable.
+For all the artificial variables that we add, we also need to add them into the objective function. They are given coefficient `M`, a very large constant, in the new objective function. 
 
-For all the artificial variables that we add, we also need to add them into the objective function. They are given coefficient `M`, a very large constant, in the new objective function. Likewise, all slack variables are given coefficient `0` in the new objective function.
+In this implementation, `M` is set to `1000`, which is sufficiently large for usage. 
 
-In the example illustrated above, the existence of 8 greater-than-or-equals-to inequalities (notice the last expression is the same as the second-to-last expression) and 6 less-than-or-equals-to inequalities (for each variable bounded below and including 1), produces 8 + 6 = 14 slack variables and 8 artificial variables.
+Likewise, all slack variables are given coefficient `0` in the new objective function.
+
+In the example illustrated above, the existence of `8` _greater-than-or-equals-to_ inequalities (notice the last expression is the same as the second-to-last expression) and `6` _less-than-or-equals-to_ inequalities (for each variable bounded below and including 1), produces `8 + 6 = 14` slack variables and `8` artificial variables.
 
 The **new** objective function is hence 
 ```
-1(x1) + 1(x2) + 1(x3) + 1(x4) + 1(x5) + 1(x6) + 0(s1) + 0(s2) + ... + 0(s13) + 0(s14) + M(a1) + M(a2) + ... + M(a7) + M(a8) = Z
+1x₁ + 1x₂ + 1x₃ + 1x₄ + 1x₅ + 1x₆ + 0s₁ + 0s₂ + ... + 0s₁₃ + 0s₁₄ + Ma₁ + Ma₂ + ... + Ma₇ + Ma₈ = Z
 ```
 
-Another matrix of 2-by-number-of-constraint-functions is produced involving the variable index (x1, x2, ..., a8) and the respective objective function coefficent of that variable. Call this the _B matrix_.
+This example is detailed in the first test case in `linear_programming_test.dart`.
 
-In iterations, a pivot row and column is identified by selecting the column producing the most positive optimality term and the row producing the least non-negative ratio of `constraint solution / pivot element`. The pivot element is the simply element residing in the _A matrix_ at the pivot row and pivot column.
+Repeated row reduction is performed on the _A matrix_ after identifying the pivot column and row, until all the terms of the optimality function (`Zⱼ - Cⱼ`, where `j` is the column index of the _A matrix_) is _non-positive_.
 
-Repeated row reduction is performed on the matrix until all the terms of the optimality function (objective variables subtracted by column dot product with the _B matrix_'s coefficient column (`Z_j - C_j`, where `j` is the column index of the _A matrix_) is non-positive. After each pivot element is found, the _B matrix_ replaces the row variable and variable coefficent value residing at its row index with a new variable and variable value indexed from the objective function by the column index.
-
-For the same example above, suppose the `7th` column and `0th` row (counting from zero) is the pivot column and row, and `[a1, M]` is the `0th` row in the _B matrix_, then this row is replaced with `[s2, 0]`, as this is the `7th` variable and its respective coefficient in the objective function (counting from zero).
+When the optimality condition is reached, such that `Zⱼ - Cⱼ` has no positive elements, the optimal solution is found and can be retrieved from the variable selection matrix that was updated upon each pivot.
 
 Using integer linear programming via Simplex Method, the set cover problem can effectively produce the least set of essential prime implicants that covers the entire range of minterms in polynomial time.
 
