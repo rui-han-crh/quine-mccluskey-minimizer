@@ -64,8 +64,6 @@ List<double> minimize(List<double> objectiveFunctionCoefficients,
     }
   }
 
-  log("Var: $numberOfVariables Slack: $numberOfSlackVariables Artificial: $numberOfArtificialVariables");
-
   int numberOfRows = constraintFunctions.length;
   int numberOfColumns = numberOfVariables +
       numberOfSlackVariables +
@@ -102,14 +100,6 @@ List<double> minimize(List<double> objectiveFunctionCoefficients,
 
     // assign the last element as result
     matrix[i].last = constraintFunctions[i].result;
-  }
-
-  log("----------------------------");
-  log("  x1  x2  x3  s1  s2  a1  a2");
-  for (var row in matrix) {
-    log(row
-        .map((e) => "${" " * (6 - e.toString().length)}${e.round()}")
-        .join());
   }
 
   objectiveFunctionCoefficients += List.filled(numberOfSlackVariables, 0.0) +
@@ -150,7 +140,7 @@ List<double> minimize(List<double> objectiveFunctionCoefficients,
       double currentValue = 0;
       for (int j = 0; j < numberOfRows; j++) {
         currentValue += matrix[j][i] * b[j];
-      }
+      } // dot product of b with the current column
       currentValue -= objectiveFunctionCoefficients[i];
       if (currentValue > maximumColumnValue) {
         maximumColumnValue = currentValue;
