@@ -49,7 +49,7 @@ Preliminary simplification is done through identifying disjunction subtrees, beg
 
 There are only three possible disjunctive normal form trees:
 
-Single Layer Conjunction Root:
+#### Single Layer Conjunction Root:
 ```
   *
  / \
@@ -57,7 +57,7 @@ A   B
 ```
 - The entire tree is a product term.
 
-Single Layer Disjunctive Root:
+#### Single Layer Disjunctive Root:
 ```
   +
  / \
@@ -65,7 +65,7 @@ A   B
 ```
 - Each subtree is a product term literal.
 
-Double Layer Disjunctive Root:
+#### Double Layer Disjunctive Root:
 ```
           +
     ______|______
@@ -76,7 +76,7 @@ Double Layer Disjunctive Root:
  ```
  - Each subtree is a product term, which is further comprised of literals.
  
-To my knowledge, no other tree forms are possible after disjunctive distribution has been applied to the initial trees.
+To my knowledge, no other tree forms are possible after disjunctive distribution has been applied to the initial trees, and the maximum height of the tree is 2.
 
 However, this DNF may possess redundancies that cannot be eliminated by distributing over disjunctions. The prime implicants must still be recovered to determine maximum coverage over all minterms with the minimum number of product terms.
 
@@ -84,7 +84,7 @@ After the intermediate DNF is found, we perform a recursive permutation over the
 
 Quine-McCluskey is then applied on this set of minterms, iteratively regrouping them again until all prime implicants are recovered.
 
-Finding essential prime implicants over a set of prime implicants reduces to a set cover problem, which reduces to a vertex cover problem. We may use linear programming by applying the Simplex Method over a set of linear constraints, such that it represents our problem domain. The specific method is **0-1 Integer Linear Programming via Simplex Big-M method**.
+Finding essential prime implicants over a set of prime implicants reduces to a set cover problem, which reduces to a vertex cover problem. We may use linear programming by applying the [Simplex Method](https://en.wikipedia.org/wiki/Simplex_algorithm) over a set of linear constraints, such that it represents our problem domain. The specific method is **0-1 Integer Linear Programming via Simplex Big-M method**.
 
 We express the prime implicants as notational variables and the minterms that they cover as constraint equations.
 
@@ -104,12 +104,31 @@ For example, for a set of 6 prime implicants recovered, we may express this prob
 
 A `1` represents that the `x_i` prime implicant covers the minterm number on the right, so `x1` covers minterms `2` and `3`, `x2` covered `2` and `10`, etc, up to `x6` covering `5, 7, 13, 15`.
 
-The first row represents our objective function `x1 + x2 + ... + x6 = Z`, such that `x_i ∈ {0, 1}` for `1 ≤ i ≤ 6`, which we must _minimize_.
-Every subsequent row then represents our constraint function, of all which must be greater than or equal to zero, as at least 1 prime implicant must cover the minterm.
-So, the first constraint is `x1 + x2 ≥ 1`, the second constraint is `x1 + x5 ≥ 1`, etc.
-We then append a constraint for each `x_i`, such that `x_i ≤ 1`, so that x_i falls in the domain {0, 1}.
+The first row represents our _objective function_ `x1 + x2 + ... + x6 = Z`, such that `x_i ∈ {0, 1}` for `1 ≤ i ≤ 6`, and `Z` must be _minimized_.
 
-The intricacies of the Simplex Method and the representation of constraint functions in the implementation will be omitted in this brief. In simple terms, the Simplex Method with Big M appends slack and aritificial variables to each constraint function on top of exisiting variables based on the nature of expression's inequality and produces a matrix of constraint functions (rows) against all variables (columns). Repeated row reduction is performed on the matrix until all the terms of the optimality function (objective variables subtracted by column dot product (Z_j - C_j, where j is the column index)) is non-positive.
+Every subsequent row then represents our constraint function, of all which must be greater than or equal to zero, as at least 1 prime implicant must cover the minterm.
+
+So, the first constraint is `x1 + x2 ≥ 1`, the second constraint is `x1 + x5 ≥ 1`, etc. Then, we append a constraint for each `x_i`, such that `x_i ≤ 1`, so that x_i falls in the domain {0, 1}.
+
+The intricacies of the representation of constraint functions in the implementation and the details of the Simplex Method will be omitted in this brief. 
+
+Generally, the Simplex Method with Big M appends slack and aritificial variables to each constraint function on top of exisiting variables based on the nature of expression's inequality and produces a matrix, call it the _A matrix_, of constraint functions (rows) against all variables (columns). 
+
+If the inequality is `≤`, we append only a slack variable. If the inequality is `≥`, we append both a slack and an artificial variable. Otherwise, if it is an equality `=`, we append only an artificial variable.
+
+For all the artificial variables that we add, they are given coefficient `M` in the new objective function. Likewise, all slack variables are given coefficient `0`.
+
+In the example illustrated above, the existence of 8 greater-than-or-equals-to inequalities (notice the last expression is the same as the second-to-last expression) and 6 less-than-or-equals-to inequalities (for each variable bounded below and including 1), produces 8 + 6 = 14 slack variables and 8 artificial variables.
+
+The **new** objective function is hence `1x1 + 1x2 + 1x3 + 1x4 + 1x5 + 1x6 + 0s1 + 0s2 + 0s3 + ... + 0s13 + 0s14 + Ma1 + Ma2 + ... + Ma7 + Ma8 = Z`.
+
+Another matrix of 2-by-number-of-constraint-functions is produced involving the variable index (x1, x2, ..., a8) and the respective objective function coefficent of that variable. Call this the _B matrix_.
+
+In iterations, a pivot row and column is identified by selecting the column producing the most positive optimality term and the row producing the least non-negative ratio of `constraint solution / pivot element`. The pivot element is the simply element residing in the _A matrix_ at the pivot row and pivot column.
+
+Repeated row reduction is performed on the matrix until all the terms of the optimality function (objective variables subtracted by column dot product with the _B matrix_'s coefficient column (`Z_j - C_j`, where `j` is the column index of the _A matrix_) is non-positive. After each pivot element is found, the _B matrix_ replaces the row variable and variable coefficent value residing at its row index with a new variable and variable value indexed from the objective function by the column index.
+
+For the same example above, suppose the `7th` column and `0th` row (counting from zero) is the pivot column and row, and `[a1, M]` is the `0th` row in the _B matrix_, then this row is replaced with `[s2, 0]`, as this is the `7th` variable and its respective coefficient in the objective function (counting from zero).
 
 Using integer linear programming via Simplex Method, the set cover problem can effectively produce the least set of essential prime implicants that covers the entire range of minterms in polynomial time.
 
