@@ -68,11 +68,11 @@ To my knowledge, no other tree forms are possible after disjunctive distribution
 
 However, this DNF may possess redundancies that cannot be eliminated by distributing over disjunctions. The prime implicants must still be recovered to determine maximum coverage over all minterms with the minimum number of product terms.
 
-After the intermediate DNF is found, we perform a recursive permutation over the literals in each product term to retrieve a set of minterms. For example, the product term `A · C`, under the combination ABCD, produces `1010`, `1011`, `1110` and `1111`. This is repeated for every product term until all the minterms are found.
+After the intermediate DNF is found, we perform a recursive permutation over the literals in each product term to retrieve a set of minterms. For example, the product term `A · C`, under the combination `ABCD`, produces `1010`, `1011`, `1110` and `1111`. This is repeated for every product term until all the minterms are found.
 
 Quine-McCluskey is then applied on this set of minterms, iteratively regrouping them again until all prime implicants are recovered.
 
-Finding essential prime implicants over a set of prime implicants reduces to a set cover problem, which reduces to a vertex cover problem. We may use linear programming by applying the Simplex Method over a set of linear constraints, such that it represents our problem domain. The specific method is *0-1 Integer Linear Programming via Simplex Big-M method*.
+Finding essential prime implicants over a set of prime implicants reduces to a set cover problem, which reduces to a vertex cover problem. We may use linear programming by applying the Simplex Method over a set of linear constraints, such that it represents our problem domain. The specific method is **0-1 Integer Linear Programming via Simplex Big-M method**.
 
 We express the prime implicants as notational variables and the minterms that they cover as constraint equations.
 
