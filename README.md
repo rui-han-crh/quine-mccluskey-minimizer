@@ -86,21 +86,23 @@ Quine-McCluskey is then applied on this set of minterms, iteratively regrouping 
 
 Finding essential prime implicants over a set of prime implicants reduces to a set cover problem, which reduces to a vertex cover problem. We may use linear programming by applying the [Simplex Method](https://en.wikipedia.org/wiki/Simplex_algorithm) over a set of linear constraints, such that it represents our problem domain. The specific method is **0-1 Integer Linear Programming via Simplex Big-M method**.
 
+The specifics of the Simplex Algorithm will be omitted from this brief, but I will illustrate how we may set up the objective function and constraint equations to begin solving for the solution.
+
 We express the prime implicants as notational variables and the minterms that they cover as constraint equations.
 
 For example, for a set of 6 prime implicants recovered, we may express this problem domain in the table form:
 
 | Minterms \ PI |  x₁ | x₂ | x₃ | x₄ | x₅ | x₆ |  Constraint Function |
 |---------------|-----|----|----|----|----|--- |----------------------|
-|      2        |  1  |  1 |    |    |    |    | x₁ + x₂ ≥ 1          |
-|      3        |  1  |    |    |    | 1  |    | x₁ + x₅ ≥ 1          |
-|      4        |     |    |  1 |    |    |    | x₃ ≥ 1               |
-|      5        |     |    |  1 |    |    |  1 | x₃ + x₆ ≥ 1          |
-|      7        |     |    |    |    | 1  |  1 | x₅ + x₆ ≥ 1          |
-|      8        |     |    |    | 1  |    |    | x₄ ≥ 1               |
-|     10        |     |  1 |    | 1  |    |    | x₂ + x₄ ≥ 1          |
-|     13        |     |    |    |    |    |  1 | x₆ ≥ 1               |
-|     15        |     |    |    |    |    |  1 | x₆ ≥ 1               |
+|      2        |  1  |  1 |    |    |    |    |   x₁ + x₂ ≥ 1        |
+|      3        |  1  |    |    |    | 1  |    |   x₁ + x₅ ≥ 1        |
+|      4        |     |    |  1 |    |    |    |   x₃ ≥ 1             |
+|      5        |     |    |  1 |    |    |  1 |   x₃ + x₆ ≥ 1        |
+|      7        |     |    |    |    | 1  |  1 |   x₅ + x₆ ≥ 1        |
+|      8        |     |    |    | 1  |    |    |   x₄ ≥ 1             |
+|     10        |     |  1 |    | 1  |    |    |   x₂ + x₄ ≥ 1        |
+|     13        |     |    |    |    |    |  1 |   x₆ ≥ 1             |
+|     15        |     |    |    |    |    |  1 |   x₆ ≥ 1             |
 
 A `1` represents that the `xᵢ` prime implicant covers the minterm number on the right, so `x₁` covers minterms `2` and `3`, `x₂` covered `2` and `10`, etc, up to `x₆` covering `5, 7, 13, 15`.
 
@@ -133,9 +135,9 @@ The **new** objective function is hence
 
 This example is detailed in the first test case in `linear_programming_test.dart`.
 
-Repeated row reduction is performed on the _A matrix_ after identifying the pivot column and row, until all the terms of the optimality function (`Zⱼ - Cⱼ`, where `j` is the column index of the _A matrix_) is _non-positive_.
+Repeated row reduction is performed on the matrix after identifying the pivot column and row, until all the terms of the optimality function (`Zⱼ - Cⱼ`, where `j` is the column index of the matrix) is _non-positive_.
 
-When the optimality condition is reached, such that `Zⱼ - Cⱼ` has no positive elements, the optimal solution is found and can be retrieved from the variable selection matrix that was updated upon each pivot.
+When the optimality condition is reached, such that `Zⱼ - Cⱼ` has no positive elements, the optimal solution is found and can be retrieved from the _variable selection matrix_ that kept track of entering and leaving variables upon each pivot.
 
 Using integer linear programming via Simplex Method, the set cover problem can effectively produce the least set of essential prime implicants that covers the entire range of minterms in polynomial time.
 
