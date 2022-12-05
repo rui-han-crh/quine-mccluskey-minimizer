@@ -1,4 +1,4 @@
-import 'package:proof_map/variable.dart';
+import 'package:proof_map/model/variable.dart';
 
 const Variable a = Variable("A");
 const Variable notA = Variable("A'");

@@ -1,4 +1,4 @@
-import 'package:proof_map/literal_term.dart';
+import 'package:proof_map/model/literal_term.dart';
 import 'preset_variables.dart' as preset;
 
 final LiteralTerm termA = LiteralTerm(preset.a, preset.notA);

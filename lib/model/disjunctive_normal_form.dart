@@ -1,16 +1,14 @@
-import 'dart:collection';
-import 'dart:math';
-
 import 'package:proof_map/app_object.dart';
-import 'package:proof_map/binary_result.dart';
+import 'package:proof_map/utils/boolean_algebra/binary_result.dart';
 import 'package:proof_map/exceptions/term_not_found_exception.dart';
-import 'package:proof_map/joined_term.dart';
-import 'package:proof_map/literal_term.dart';
-import 'package:proof_map/minterm.dart';
-import 'package:proof_map/string_format_extension.dart';
-import 'package:proof_map/term.dart';
+import 'package:proof_map/model/joined_term.dart';
+import 'package:proof_map/model/literal_term.dart';
+import 'package:proof_map/model/implicant.dart';
+import 'package:proof_map/model/minterm.dart';
+import 'package:proof_map/extensions/string_format_extension.dart';
+import 'package:proof_map/model/term.dart';
 
-import 'messages.dart';
+import '../utils/messages.dart';
 
 abstract class DisjunctiveNormalForm extends AppObject {
   /// Returns the underlying terms that make up this disjunctive normal form
@@ -27,10 +25,10 @@ abstract class DisjunctiveNormalForm extends AppObject {
       [Iterable<LiteralTerm> orderedVariables = const {}]) {
     if (joinedTerm.isConjunction) {
       return [
-        Minterm(LinkedHashMap.from({
+        Implicant.create(Map.from({
           for (Term t in joinedTerm.enclosedTerms as Iterable<LiteralTerm>)
-            t: BinaryResult.binaryTrue
-        }))
+            t: BinaryValue.binaryOne
+        })) as Minterm
       ];
     }
 
@@ -46,7 +44,7 @@ abstract class DisjunctiveNormalForm extends AppObject {
       // A set of compulsory variables that have binary values determined
       Set<LiteralTerm> compulsorySet;
       // A set of not included variables that would take any value
-      List<LiteralTerm> difference;
+      List<LiteralTerm> difference = [];
 
       if (subtree is! JoinedTerm) {
         // there will only be one compulsory term, the rest of the terms take
@@ -63,8 +61,13 @@ abstract class DisjunctiveNormalForm extends AppObject {
           }
           return e as LiteralTerm;
         }).toSet();
-        difference =
-            orderedVariables.toSet().difference(compulsorySet).toList();
+
+        for (LiteralTerm term in orderedVariables) {
+          if (!compulsorySet.contains(term) &&
+              !compulsorySet.contains(term.negate())) {
+            difference.add(term);
+          }
+        }
       }
       minterms.addAll(_generateFromDontCareTerms(
           compulsorySet, difference, orderedVariables as Set<LiteralTerm>));
@@ -96,12 +99,12 @@ abstract class DisjunctiveNormalForm extends AppObject {
     if (i == dontCareList.length) {
       // all terms in the order list are in the compulsory set
       return [
-        Minterm(LinkedHashMap.from({
+        Implicant.create(Map.from({
           for (LiteralTerm term in order)
             term: compulsorySet.contains(term)
-                ? BinaryResult.binaryTrue
-                : BinaryResult.binaryFalse
-        }))
+                ? BinaryValue.binaryOne
+                : BinaryValue.binaryZero
+        })) as Minterm
       ];
     }
 

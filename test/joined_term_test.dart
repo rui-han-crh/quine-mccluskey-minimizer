@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:proof_map/disjunctive_normal_form.dart';
-import 'package:proof_map/joined_term.dart';
-import 'package:proof_map/literal_term.dart';
-import 'package:proof_map/term.dart';
-import 'package:proof_map/variable.dart';
+import 'package:proof_map/model/disjunctive_normal_form.dart';
+import 'package:proof_map/model/joined_term.dart';
+import 'package:proof_map/model/literal_term.dart';
+import 'package:proof_map/model/term.dart';
+import 'package:proof_map/model/variable.dart';
 import 'util/preset_terms.dart' as terms;
 import 'util/preset_variables.dart' as variables;
 
@@ -403,5 +403,23 @@ void main() {
     JoinedTerm expected = minTermSeven.disjunction(
         minTermFiveAndSeven, minTermSevenAndFifteen, minTermTwelveToFifteen);
     expect(convertedTerm.joinedTerm, expected);
+  });
+
+  test(
+      "Given (A · B) + (A' · C) + (B · C), when simplified, then produces (A · B) + (A' · C)",
+      () async {
+    // Arrange
+    JoinedTerm left = JoinedTerm(isConjunction: true, terms: [termA, termB]);
+    JoinedTerm middle =
+        JoinedTerm(isConjunction: true, terms: [termNotA, termC]);
+    JoinedTerm right = JoinedTerm(isConjunction: true, terms: [termB, termC]);
+    JoinedTerm together =
+        JoinedTerm(isConjunction: false, terms: [left, middle, right]);
+
+    // Act
+    JoinedTerm simplified = together.simplify();
+
+    // Assert
+    expect(simplified, JoinedTerm(isConjunction: false, terms: [left, middle]));
   });
 }

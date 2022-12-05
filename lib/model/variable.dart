@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-import 'app_object.dart';
+import '../app_object.dart';
 
 class Variable extends AppObject with EquatableMixin {
   final String _statement;

@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:proof_map/literal_term.dart';
-import 'package:proof_map/variable.dart';
+import 'package:proof_map/model/literal_term.dart';
+import 'package:proof_map/model/variable.dart';
 
 void main() {
   const String statement = "A";

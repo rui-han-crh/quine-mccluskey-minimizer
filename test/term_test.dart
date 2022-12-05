@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:proof_map/joined_term.dart';
-import 'package:proof_map/literal_term.dart';
-import 'package:proof_map/term.dart';
-import 'package:proof_map/variable.dart';
+import 'package:proof_map/model/joined_term.dart';
+import 'package:proof_map/model/literal_term.dart';
+import 'package:proof_map/model/term.dart';
+import 'package:proof_map/model/variable.dart';
 import 'util/preset_terms.dart' as terms;
 import 'util/preset_variables.dart' as variables;
 

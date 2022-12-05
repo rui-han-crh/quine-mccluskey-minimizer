@@ -1,186 +1,186 @@
 import 'dart:collection';
 
-import 'package:proof_map/binary_result.dart';
-import 'package:proof_map/minterm.dart';
+import 'package:proof_map/utils/boolean_algebra/binary_result.dart';
+import 'package:proof_map/model/implicant.dart';
 
 import 'preset_terms.dart';
 
-Minterm abMintermZero = Minterm(LinkedHashMap.from({
-  termA: BinaryResult.binaryFalse,
-  termB: BinaryResult.binaryFalse,
+Implicant abMintermZero = Implicant.create(LinkedHashMap.from({
+  termA: BinaryValue.binaryZero,
+  termB: BinaryValue.binaryZero,
 }));
 
-Minterm abMintermOne = Minterm(LinkedHashMap.from({
-  termA: BinaryResult.binaryFalse,
-  termB: BinaryResult.binaryTrue,
+Implicant abMintermOne = Implicant.create(LinkedHashMap.from({
+  termA: BinaryValue.binaryZero,
+  termB: BinaryValue.binaryOne,
 }));
 
-Minterm abMintermTwo = Minterm(LinkedHashMap.from({
-  termA: BinaryResult.binaryTrue,
-  termB: BinaryResult.binaryFalse,
+Implicant abMintermTwo = Implicant.create(LinkedHashMap.from({
+  termA: BinaryValue.binaryOne,
+  termB: BinaryValue.binaryZero,
 }));
 
-Minterm abMintermThree = Minterm(LinkedHashMap.from({
-  termA: BinaryResult.binaryTrue,
-  termB: BinaryResult.binaryTrue,
+Implicant abMintermThree = Implicant.create(LinkedHashMap.from({
+  termA: BinaryValue.binaryOne,
+  termB: BinaryValue.binaryOne,
 }));
 
-Minterm abcMintermZero = Minterm(LinkedHashMap.from({
-  termA: BinaryResult.binaryFalse,
-  termB: BinaryResult.binaryFalse,
-  termC: BinaryResult.binaryFalse
+Implicant abcMintermZero = Implicant.create(LinkedHashMap.from({
+  termA: BinaryValue.binaryZero,
+  termB: BinaryValue.binaryZero,
+  termC: BinaryValue.binaryZero
 }));
 
-Minterm abcMintermOne = Minterm(LinkedHashMap.from({
-  termA: BinaryResult.binaryFalse,
-  termB: BinaryResult.binaryFalse,
-  termC: BinaryResult.binaryTrue
+Implicant abcMintermOne = Implicant.create(LinkedHashMap.from({
+  termA: BinaryValue.binaryZero,
+  termB: BinaryValue.binaryZero,
+  termC: BinaryValue.binaryOne
 }));
 
-Minterm abcMintermTwo = Minterm(LinkedHashMap.from({
-  termA: BinaryResult.binaryFalse,
-  termB: BinaryResult.binaryTrue,
-  termC: BinaryResult.binaryFalse
+Implicant abcMintermTwo = Implicant.create(LinkedHashMap.from({
+  termA: BinaryValue.binaryZero,
+  termB: BinaryValue.binaryOne,
+  termC: BinaryValue.binaryZero
 }));
 
-Minterm abcMintermThree = Minterm(LinkedHashMap.from({
-  termA: BinaryResult.binaryFalse,
-  termB: BinaryResult.binaryTrue,
-  termC: BinaryResult.binaryTrue
+Implicant abcMintermThree = Implicant.create(LinkedHashMap.from({
+  termA: BinaryValue.binaryZero,
+  termB: BinaryValue.binaryOne,
+  termC: BinaryValue.binaryOne
 }));
 
-Minterm abcMintermFour = Minterm(LinkedHashMap.from({
-  termA: BinaryResult.binaryTrue,
-  termB: BinaryResult.binaryFalse,
-  termC: BinaryResult.binaryFalse
+Implicant abcMintermFour = Implicant.create(LinkedHashMap.from({
+  termA: BinaryValue.binaryOne,
+  termB: BinaryValue.binaryZero,
+  termC: BinaryValue.binaryZero
 }));
 
-Minterm abcMintermFive = Minterm(LinkedHashMap.from({
-  termA: BinaryResult.binaryTrue,
-  termB: BinaryResult.binaryFalse,
-  termC: BinaryResult.binaryTrue
+Implicant abcMintermFive = Implicant.create(LinkedHashMap.from({
+  termA: BinaryValue.binaryOne,
+  termB: BinaryValue.binaryZero,
+  termC: BinaryValue.binaryOne
 }));
 
-Minterm abcMintermSix = Minterm(LinkedHashMap.from({
-  termA: BinaryResult.binaryTrue,
-  termB: BinaryResult.binaryTrue,
-  termC: BinaryResult.binaryFalse
+Implicant abcMintermSix = Implicant.create(LinkedHashMap.from({
+  termA: BinaryValue.binaryOne,
+  termB: BinaryValue.binaryOne,
+  termC: BinaryValue.binaryZero
 }));
 
-Minterm abcMintermSeven = Minterm(LinkedHashMap.from({
-  termA: BinaryResult.binaryTrue,
-  termB: BinaryResult.binaryTrue,
-  termC: BinaryResult.binaryTrue
+Implicant abcMintermSeven = Implicant.create(LinkedHashMap.from({
+  termA: BinaryValue.binaryOne,
+  termB: BinaryValue.binaryOne,
+  termC: BinaryValue.binaryOne
 }));
 
-Minterm abcdMintermZero = Minterm(LinkedHashMap.from({
-  termA: BinaryResult.binaryFalse,
-  termB: BinaryResult.binaryFalse,
-  termC: BinaryResult.binaryFalse,
-  termD: BinaryResult.binaryFalse
+Implicant abcdMintermZero = Implicant.create(LinkedHashMap.from({
+  termA: BinaryValue.binaryZero,
+  termB: BinaryValue.binaryZero,
+  termC: BinaryValue.binaryZero,
+  termD: BinaryValue.binaryZero
 }));
 
-Minterm abcdMintermOne = Minterm(LinkedHashMap.from({
-  termA: BinaryResult.binaryFalse,
-  termB: BinaryResult.binaryFalse,
-  termC: BinaryResult.binaryFalse,
-  termD: BinaryResult.binaryTrue
+Implicant abcdMintermOne = Implicant.create(LinkedHashMap.from({
+  termA: BinaryValue.binaryZero,
+  termB: BinaryValue.binaryZero,
+  termC: BinaryValue.binaryZero,
+  termD: BinaryValue.binaryOne
 }));
 
-Minterm abcdMintermTwo = Minterm(LinkedHashMap.from({
-  termA: BinaryResult.binaryFalse,
-  termB: BinaryResult.binaryFalse,
-  termC: BinaryResult.binaryTrue,
-  termD: BinaryResult.binaryFalse
+Implicant abcdMintermTwo = Implicant.create(LinkedHashMap.from({
+  termA: BinaryValue.binaryZero,
+  termB: BinaryValue.binaryZero,
+  termC: BinaryValue.binaryOne,
+  termD: BinaryValue.binaryZero
 }));
 
-Minterm abcdMintermThree = Minterm(LinkedHashMap.from({
-  termA: BinaryResult.binaryFalse,
-  termB: BinaryResult.binaryFalse,
-  termC: BinaryResult.binaryTrue,
-  termD: BinaryResult.binaryTrue
+Implicant abcdMintermThree = Implicant.create(LinkedHashMap.from({
+  termA: BinaryValue.binaryZero,
+  termB: BinaryValue.binaryZero,
+  termC: BinaryValue.binaryOne,
+  termD: BinaryValue.binaryOne
 }));
 
-Minterm abcdMintermFour = Minterm(LinkedHashMap.from({
-  termA: BinaryResult.binaryFalse,
-  termB: BinaryResult.binaryTrue,
-  termC: BinaryResult.binaryFalse,
-  termD: BinaryResult.binaryFalse
+Implicant abcdMintermFour = Implicant.create(LinkedHashMap.from({
+  termA: BinaryValue.binaryZero,
+  termB: BinaryValue.binaryOne,
+  termC: BinaryValue.binaryZero,
+  termD: BinaryValue.binaryZero
 }));
 
-Minterm abcdMintermFive = Minterm(LinkedHashMap.from({
-  termA: BinaryResult.binaryFalse,
-  termB: BinaryResult.binaryTrue,
-  termC: BinaryResult.binaryFalse,
-  termD: BinaryResult.binaryTrue
+Implicant abcdMintermFive = Implicant.create(LinkedHashMap.from({
+  termA: BinaryValue.binaryZero,
+  termB: BinaryValue.binaryOne,
+  termC: BinaryValue.binaryZero,
+  termD: BinaryValue.binaryOne
 }));
 
-Minterm abcdMintermSix = Minterm(LinkedHashMap.from({
-  termA: BinaryResult.binaryFalse,
-  termB: BinaryResult.binaryTrue,
-  termC: BinaryResult.binaryTrue,
-  termD: BinaryResult.binaryFalse
+Implicant abcdMintermSix = Implicant.create(LinkedHashMap.from({
+  termA: BinaryValue.binaryZero,
+  termB: BinaryValue.binaryOne,
+  termC: BinaryValue.binaryOne,
+  termD: BinaryValue.binaryZero
 }));
 
-Minterm abcdMintermSeven = Minterm(LinkedHashMap.from({
-  termA: BinaryResult.binaryFalse,
-  termB: BinaryResult.binaryTrue,
-  termC: BinaryResult.binaryTrue,
-  termD: BinaryResult.binaryTrue
+Implicant abcdMintermSeven = Implicant.create(LinkedHashMap.from({
+  termA: BinaryValue.binaryZero,
+  termB: BinaryValue.binaryOne,
+  termC: BinaryValue.binaryOne,
+  termD: BinaryValue.binaryOne
 }));
 
-Minterm abcdMintermEight = Minterm(LinkedHashMap.from({
-  termA: BinaryResult.binaryTrue,
-  termB: BinaryResult.binaryFalse,
-  termC: BinaryResult.binaryFalse,
-  termD: BinaryResult.binaryFalse
+Implicant abcdMintermEight = Implicant.create(LinkedHashMap.from({
+  termA: BinaryValue.binaryOne,
+  termB: BinaryValue.binaryZero,
+  termC: BinaryValue.binaryZero,
+  termD: BinaryValue.binaryZero
 }));
 
-Minterm abcdMintermNine = Minterm(LinkedHashMap.from({
-  termA: BinaryResult.binaryTrue,
-  termB: BinaryResult.binaryFalse,
-  termC: BinaryResult.binaryFalse,
-  termD: BinaryResult.binaryTrue
+Implicant abcdMintermNine = Implicant.create(LinkedHashMap.from({
+  termA: BinaryValue.binaryOne,
+  termB: BinaryValue.binaryZero,
+  termC: BinaryValue.binaryZero,
+  termD: BinaryValue.binaryOne
 }));
 
-Minterm abcdMintermTen = Minterm(LinkedHashMap.from({
-  termA: BinaryResult.binaryTrue,
-  termB: BinaryResult.binaryFalse,
-  termC: BinaryResult.binaryTrue,
-  termD: BinaryResult.binaryFalse
+Implicant abcdMintermTen = Implicant.create(LinkedHashMap.from({
+  termA: BinaryValue.binaryOne,
+  termB: BinaryValue.binaryZero,
+  termC: BinaryValue.binaryOne,
+  termD: BinaryValue.binaryZero
 }));
 
-Minterm abcdMintermEleven = Minterm(LinkedHashMap.from({
-  termA: BinaryResult.binaryTrue,
-  termB: BinaryResult.binaryFalse,
-  termC: BinaryResult.binaryTrue,
-  termD: BinaryResult.binaryTrue
+Implicant abcdMintermEleven = Implicant.create(LinkedHashMap.from({
+  termA: BinaryValue.binaryOne,
+  termB: BinaryValue.binaryZero,
+  termC: BinaryValue.binaryOne,
+  termD: BinaryValue.binaryOne
 }));
 
-Minterm abcdMintermTwelve = Minterm(LinkedHashMap.from({
-  termA: BinaryResult.binaryTrue,
-  termB: BinaryResult.binaryTrue,
-  termC: BinaryResult.binaryFalse,
-  termD: BinaryResult.binaryFalse
+Implicant abcdMintermTwelve = Implicant.create(LinkedHashMap.from({
+  termA: BinaryValue.binaryOne,
+  termB: BinaryValue.binaryOne,
+  termC: BinaryValue.binaryZero,
+  termD: BinaryValue.binaryZero
 }));
 
-Minterm abcdMintermThirteen = Minterm(LinkedHashMap.from({
-  termA: BinaryResult.binaryTrue,
-  termB: BinaryResult.binaryTrue,
-  termC: BinaryResult.binaryFalse,
-  termD: BinaryResult.binaryTrue
+Implicant abcdMintermThirteen = Implicant.create(LinkedHashMap.from({
+  termA: BinaryValue.binaryOne,
+  termB: BinaryValue.binaryOne,
+  termC: BinaryValue.binaryZero,
+  termD: BinaryValue.binaryOne
 }));
 
-Minterm abcdMintermFourteen = Minterm(LinkedHashMap.from({
-  termA: BinaryResult.binaryTrue,
-  termB: BinaryResult.binaryTrue,
-  termC: BinaryResult.binaryTrue,
-  termD: BinaryResult.binaryFalse
+Implicant abcdMintermFourteen = Implicant.create(LinkedHashMap.from({
+  termA: BinaryValue.binaryOne,
+  termB: BinaryValue.binaryOne,
+  termC: BinaryValue.binaryOne,
+  termD: BinaryValue.binaryZero
 }));
 
-Minterm abcdMintermFifteen = Minterm(LinkedHashMap.from({
-  termA: BinaryResult.binaryTrue,
-  termB: BinaryResult.binaryTrue,
-  termC: BinaryResult.binaryTrue,
-  termD: BinaryResult.binaryTrue
+Implicant abcdMintermFifteen = Implicant.create(LinkedHashMap.from({
+  termA: BinaryValue.binaryOne,
+  termB: BinaryValue.binaryOne,
+  termC: BinaryValue.binaryOne,
+  termD: BinaryValue.binaryOne
 }));

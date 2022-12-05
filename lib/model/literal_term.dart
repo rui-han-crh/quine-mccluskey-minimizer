@@ -1,5 +1,5 @@
-import 'package:proof_map/term.dart';
-import 'package:proof_map/variable.dart';
+import 'package:proof_map/model/term.dart';
+import 'package:proof_map/model/variable.dart';
 
 class LiteralTerm extends Term {
   // Describes the term using a variable

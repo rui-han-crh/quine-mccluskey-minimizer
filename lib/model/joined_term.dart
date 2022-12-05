@@ -1,8 +1,9 @@
-import 'package:proof_map/disjunctive_normal_form.dart';
-import 'package:proof_map/literal_term.dart';
-import 'package:proof_map/term.dart';
-
-import 'minterm.dart';
+import 'package:proof_map/model/disjunctive_normal_form.dart';
+import 'package:proof_map/model/literal_term.dart';
+import 'package:proof_map/model/implicant.dart';
+import 'package:proof_map/utils/boolean_algebra/quine_mccluskey.dart'
+    as quine_mccluskey;
+import 'package:proof_map/model/term.dart';
 
 class JoinedTerm extends Term {
   final bool _isConjunction;
@@ -86,10 +87,12 @@ class JoinedTerm extends Term {
 
   // Simplifies the terms using Quine-McCluskey
   JoinedTerm simplify() {
-    // TODO: finish simplify sequence
-    //Iterable<Minterm> minterms = toDisjunctiveNormalForm().getMinterms();
-
-    return toDisjunctiveNormalForm().joinedTerm;
+    Iterable<Implicant> minterms = toDisjunctiveNormalForm().getMinterms();
+    return JoinedTerm(
+        isConjunction: false,
+        terms: quine_mccluskey
+            .compute(minterms)
+            .map((e) => JoinedTerm(isConjunction: true, terms: e.terms)));
   }
 
   DisjunctiveNormalForm toDisjunctiveNormalForm() {

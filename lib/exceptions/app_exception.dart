@@ -9,6 +9,5 @@ class AppException with EquatableMixin implements Exception {
   String toString() => _errorMessage;
 
   @override
-  // TODO: implement props
   List<Object?> get props => [_errorMessage];
 }

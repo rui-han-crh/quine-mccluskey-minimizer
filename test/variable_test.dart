@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:proof_map/variable.dart';
+import 'package:proof_map/model/variable.dart';
 
 void main() {
   test(

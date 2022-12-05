@@ -1,8 +1,8 @@
 import 'dart:collection';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:proof_map/binary_result.dart';
-import 'package:proof_map/minterm.dart';
+import 'package:proof_map/utils/boolean_algebra/binary_result.dart';
+import 'package:proof_map/model/implicant.dart';
 
 import 'util/preset_terms.dart';
 
@@ -13,11 +13,11 @@ void main() {
     // Arrange
 
     // Act
-    Minterm minterm = Minterm(LinkedHashMap.from({
-      termA: BinaryResult.binaryTrue,
-      termB: BinaryResult.binaryTrue,
-      termC: BinaryResult.binaryTrue,
-      termD: BinaryResult.binaryFalse
+    Implicant minterm = Implicant.create(LinkedHashMap.from({
+      termA: BinaryValue.binaryOne,
+      termB: BinaryValue.binaryOne,
+      termC: BinaryValue.binaryOne,
+      termD: BinaryValue.binaryZero
     }));
 
     // Assert
@@ -30,11 +30,11 @@ void main() {
     // Arrange
 
     // Act
-    Minterm minterm = Minterm(LinkedHashMap.from({
-      termA: BinaryResult.binaryFalse,
-      termB: BinaryResult.binaryFalse,
-      termC: BinaryResult.binaryFalse,
-      termD: BinaryResult.binaryFalse
+    Implicant minterm = Implicant.create(LinkedHashMap.from({
+      termA: BinaryValue.binaryZero,
+      termB: BinaryValue.binaryZero,
+      termC: BinaryValue.binaryZero,
+      termD: BinaryValue.binaryZero
     }));
 
     // Assert
@@ -47,11 +47,11 @@ void main() {
     // Arrange
 
     // Act
-    Minterm minterm = Minterm(LinkedHashMap.from({
-      termNotA: BinaryResult.binaryFalse,
-      termNotB: BinaryResult.binaryTrue,
-      termNotC: BinaryResult.binaryFalse,
-      termNotD: BinaryResult.binaryFalse
+    Implicant minterm = Implicant.create(LinkedHashMap.from({
+      termNotA: BinaryValue.binaryZero,
+      termNotB: BinaryValue.binaryOne,
+      termNotC: BinaryValue.binaryZero,
+      termNotD: BinaryValue.binaryZero
     }));
 
     // Assert
