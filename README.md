@@ -92,15 +92,15 @@ For example, for a set of 6 prime implicants recovered, we may express this prob
 
 | Minterms \ PI |  x₁ | x₂ | x₃ | x₄ | x₅ | x₆ |  Constraint Function |
 |---------------|-----|----|----|----|----|--- |----------------------|
-|      2        |  1  |  1 |    |    |    |    | x1 + x2 ≥ 1          |
-|      3        |  1  |    |    |    | 1  |    | x1 + x5 ≥ 1          |
-|      4        |     |    |  1 |    |    |    | x3 ≥ 1               |
-|      5        |     |    |  1 |    |    |  1 | x3 + x6 ≥ 1          |
-|      7        |     |    |    |    | 1  |  1 | x5 + x6 ≥ 1          |
-|      8        |     |    |    | 1  |    |    | x4 ≥ 1               |
-|     10        |     |  1 |    | 1  |    |    | x2 + x4 ≥ 1          |
-|     13        |     |    |    |    |    |  1 | x6 ≥ 1               |
-|     15        |     |    |    |    |    |  1 | x6 ≥ 1               |
+|      2        |  1  |  1 |    |    |    |    | x₁ + x₂ ≥ 1          |
+|      3        |  1  |    |    |    | 1  |    | x₁ + x₅ ≥ 1          |
+|      4        |     |    |  1 |    |    |    | x₃ ≥ 1               |
+|      5        |     |    |  1 |    |    |  1 | x₃ + x₆ ≥ 1          |
+|      7        |     |    |    |    | 1  |  1 | x₅ + x₆ ≥ 1          |
+|      8        |     |    |    | 1  |    |    | x₄ ≥ 1               |
+|     10        |     |  1 |    | 1  |    |    | x₂ + x₄ ≥ 1          |
+|     13        |     |    |    |    |    |  1 | x₆ ≥ 1               |
+|     15        |     |    |    |    |    |  1 | x₆ ≥ 1               |
 
 A `1` represents that the `x_i` prime implicant covers the minterm number on the right, so `x₁` covers minterms `2` and `3`, `x₂` covered `2` and `10`, etc, up to `x₆` covering `5, 7, 13, 15`.
 
