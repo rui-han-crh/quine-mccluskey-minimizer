@@ -102,7 +102,7 @@ For example, for a set of 6 prime implicants recovered, we may express this prob
 |     13        |     |    |    |    |    |  1 | x₆ ≥ 1               |
 |     15        |     |    |    |    |    |  1 | x₆ ≥ 1               |
 
-A `1` represents that the `x_i` prime implicant covers the minterm number on the right, so `x₁` covers minterms `2` and `3`, `x₂` covered `2` and `10`, etc, up to `x₆` covering `5, 7, 13, 15`.
+A `1` represents that the `xᵢ` prime implicant covers the minterm number on the right, so `x₁` covers minterms `2` and `3`, `x₂` covered `2` and `10`, etc, up to `x₆` covering `5, 7, 13, 15`.
 
 The first row represents our _objective function_ `x₁ + x₂ + x₃ + x₄ + x₅ + x₆= Z`, such that `xᵢ ∈ {0, 1}` for `1 ≤ i ≤ 6`, and `Z` must be _minimized_.
 
