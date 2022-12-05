@@ -116,11 +116,14 @@ Generally, the Simplex Method with Big M appends slack and aritificial variables
 
 If the inequality is `≤`, we append only a slack variable. If the inequality is `≥`, we append both a slack and an artificial variable. Otherwise, if it is an equality `=`, we append only an artificial variable.
 
-For all the artificial variables that we add, they are given coefficient `M` in the new objective function. Likewise, all slack variables are given coefficient `0`.
+For all the artificial variables that we add, we also need to add them into the objective function. They are given coefficient `M`, a very large constant, in the new objective function. Likewise, all slack variables are given coefficient `0` in the new objective function.
 
 In the example illustrated above, the existence of 8 greater-than-or-equals-to inequalities (notice the last expression is the same as the second-to-last expression) and 6 less-than-or-equals-to inequalities (for each variable bounded below and including 1), produces 8 + 6 = 14 slack variables and 8 artificial variables.
 
-The **new** objective function is hence `1x1 + 1x2 + 1x3 + 1x4 + 1x5 + 1x6 + 0s1 + 0s2 + 0s3 + ... + 0s13 + 0s14 + Ma1 + Ma2 + ... + Ma7 + Ma8 = Z`.
+The **new** objective function is hence 
+```
+1(x1) + 1(x2) + 1(x3) + 1(x4) + 1(x5) + 1(x6) + 0(s1) + 0(s2) + ... + 0(s13) + 0(s14) + M(a1) + M(a2) + ... + M(a7) + M(a8) = Z
+```
 
 Another matrix of 2-by-number-of-constraint-functions is produced involving the variable index (x1, x2, ..., a8) and the respective objective function coefficent of that variable. Call this the _B matrix_.
 
