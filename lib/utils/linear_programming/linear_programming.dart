@@ -179,7 +179,9 @@ List<double> minimize(List<double> objectiveFunctionCoefficients,
     b[minimumRow] = objectiveFunctionCoefficients[maximumColumn];
     bVar[minimumRow] = maximumColumn;
 
-    if (minimumRowRatio != 0) {
+    // Rectify pivot row by pivot element only if ratio is not 0 or 1
+    // Remember: ratio can take values between 0 and 1
+    if (minimumRowRatio != 0 && minimumRowRatio != 1) {
       for (int j = 0; j < numberOfColumns; j++) {
         matrix[minimumRow][j] /= pivotElement;
       }
