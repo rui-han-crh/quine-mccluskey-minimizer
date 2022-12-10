@@ -12,6 +12,8 @@ abstract class Term extends AppObject with EquatableMixin {
   // Creates the negation of the present term
   Term negate();
 
+  Term simplify();
+
   // Joins multiple terms with conjunctions
   late final conjunction = VarargsFunction<Term, Term>((args) {
     return JoinedTerm(isConjunction: true, terms: args + [this]);

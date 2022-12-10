@@ -12,3 +12,6 @@ final LiteralTerm termNotC = termC.negate() as LiteralTerm;
 
 final LiteralTerm termD = LiteralTerm(preset.d, preset.notD);
 final LiteralTerm termNotD = termD.negate() as LiteralTerm;
+
+final LiteralTerm termE = LiteralTerm(preset.e, preset.notE);
+final LiteralTerm termNotE = termE.negate() as LiteralTerm;

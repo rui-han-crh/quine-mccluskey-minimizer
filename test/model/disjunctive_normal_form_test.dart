@@ -6,8 +6,8 @@ import 'package:proof_map/utils/messages.dart';
 import 'package:proof_map/model/implicant.dart';
 import 'package:proof_map/extensions/string_format_extension.dart';
 
-import 'util/preset_minterms.dart';
-import 'util/preset_terms.dart';
+import '../presets/preset_minterms.dart';
+import '../presets/preset_terms.dart';
 
 void main() {
   test(
@@ -94,5 +94,42 @@ void main() {
     // Assert
     expect(expression.getMinterms({termA, termB, termC}),
         {abcMintermOne, abcMintermThree, abcMintermSix, abcMintermSeven});
+  });
+
+  test(
+      "Given a joined term of (A · B), when converted to minterms of AB, produces minterm 2",
+      () async {
+    // Arrange
+    JoinedTerm aAndB = termA.conjunction(termB);
+
+    // Act
+    DisjunctiveNormalForm expression = aAndB.toDisjunctiveNormalForm();
+
+    // Assert
+    expect(expression.getMinterms({termA, termB}), {abMintermThree});
+  });
+
+  test(
+      "Given a joined term of (A · D) + (B · D) + (C · D), when converted to minterms of ABCD, produces minterm 3, 5, 7, 9, 11, 13, 15",
+      () async {
+    // Arrange
+    JoinedTerm aAndD = termA.conjunction(termD);
+    JoinedTerm bAndD = termB.conjunction(termD);
+    JoinedTerm cAndD = termC.conjunction(termD);
+    JoinedTerm together = aAndD.disjunction(bAndD, cAndD);
+
+    // Act
+    DisjunctiveNormalForm expression = together.toDisjunctiveNormalForm();
+
+    // Assert
+    expect(expression.getMinterms({termA, termB, termC, termD}), {
+      abcdMintermThree,
+      abcdMintermFive,
+      abcdMintermSeven,
+      abcdMintermNine,
+      abcdMintermEleven,
+      abcdMintermThirteen,
+      abcdMintermFifteen
+    });
   });
 }

@@ -6,3 +6,9 @@ const String representationEmptyMessage =
 
 const String constraintVariablesOfDifferentLength =
     "The provided constraint function does not have the same number of parameters as other functions!";
+
+const String enterExpressionMessage = "Enter your expression here...";
+
+const String simplifyText = "Simplify";
+
+const String expressionSubmittedText = "Calculating";

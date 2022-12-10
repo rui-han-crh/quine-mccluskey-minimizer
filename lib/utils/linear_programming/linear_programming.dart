@@ -174,9 +174,19 @@ List<double> minimize(List<double> objectiveFunctionCoefficients,
     }
 
     double pivotElement = matrix[minimumRow][maximumColumn];
+
     // replace the current b_i with the incoming variable and value
     b[minimumRow] = objectiveFunctionCoefficients[maximumColumn];
     bVar[minimumRow] = maximumColumn;
+
+    if (minimumRowRatio != 0) {
+      for (int j = 0; j < numberOfColumns; j++) {
+        matrix[minimumRow][j] /= pivotElement;
+      }
+    }
+
+    // get new pivot element
+    pivotElement = matrix[minimumRow][maximumColumn];
 
     for (int i = 0; i < numberOfRows; i++) {
       if (i == minimumRow) {
@@ -195,14 +205,12 @@ List<double> minimize(List<double> objectiveFunctionCoefficients,
       }
     }
 
-    // log("----------------------------");
-    // log("Selected $maximumColumn, $minimumRow");
-    // log("  x1  x2  x3  x4  x5  x6  s1  s2  s3  s4  s5  s6  s7  s8  s9  s10 s11 s12 s13 s14 a1  a2  a3  a4  a5  a6  a7  a8");
-    // for (var row in buildingMatrix) {
-    //   log(row
-    //       .map((e) => "${" " * (6 - e.toString().length)}${e.round()}")
-    //       .join());
-    // }
+    log("----------------------------");
+    log("Selected $maximumColumn, $minimumRow");
+    log("    x1    x2    x3    x4    x5    x6    s1    s2    s3    s4    s5    s6    s7    a1    a2    a3    a4    a5    a6    a7");
+    for (var row in matrix) {
+      log(row.map((e) => "${" " * (6 - e.toString().length)}$e").join());
+    }
   }
 
   List<double> result = List.filled(numberOfVariables, 0);
@@ -212,6 +220,8 @@ List<double> minimize(List<double> objectiveFunctionCoefficients,
     }
     result[bVar[i]] = matrix[i].last;
   }
+
+  log(result.toString());
 
   return result;
 }

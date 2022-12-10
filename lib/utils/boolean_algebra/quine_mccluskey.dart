@@ -8,7 +8,6 @@ import 'package:proof_map/utils/linear_programming/linear_programming.dart'
     as bin_ilp;
 import 'package:proof_map/model/literal_term.dart';
 import 'package:proof_map/utils/pair.dart';
-import 'package:proof_map/model/prime_implicant.dart';
 
 Iterable<Implicant> compute(Iterable<Implicant> startingMinterms) {
   // create a collection of groups, index + 1 corresponding to the number of 1s
@@ -49,7 +48,7 @@ Iterable<Implicant> compute(Iterable<Implicant> startingMinterms) {
             groups[i + 1][b].item2 = true;
 
             // add this new expanded implicant to the group if it is not added
-            PrimeImplicant expandedImplicant =
+            Implicant expandedImplicant =
                 _expandImplicant(groups[i][a].item1, groups[i + 1][b].item1);
             if (!alreadyAdded.contains(expandedImplicant)) {
               groups[i].add(Pair(expandedImplicant, false));
@@ -66,8 +65,8 @@ Iterable<Implicant> compute(Iterable<Implicant> startingMinterms) {
     }
   }
 
-  List<PrimeImplicant> primeImplicants =
-      groups.expand((e) => e).map((e) => e.item1 as PrimeImplicant).toList();
+  List<Implicant> primeImplicants =
+      groups.expand((e) => e).map((e) => e.item1).toList();
 
   Map<int, List<double>> coefficients = {};
 
@@ -89,6 +88,9 @@ Iterable<Implicant> compute(Iterable<Implicant> startingMinterms) {
       .map((e) => Expression(e, ExpressionRelation.greaterThanOrEqualsTo, 1))
       .toList());
 
+  // returns a list, each index corresponding to a term and its value being
+  // the coefficent. [0, 1, 0, 1, 1] -> x2 + x4 + x5
+
   return List.generate(result.length, (i) => i)
       .where((i) => result[i] > 0)
       .map((i) => primeImplicants[i]);
@@ -109,7 +111,7 @@ bool _isGreyCode(Implicant a, Implicant b) {
 /// Groups implicants a and b together by changing their difference bits to
 /// don't-cares. <br>
 /// There should only be a difference of one 1-bit between a and b
-PrimeImplicant _expandImplicant(Implicant a, Implicant b) {
+Implicant _expandImplicant(Implicant a, Implicant b) {
   List<BinaryValue> binaryA = a.binaryRepresentation.toList();
   List<BinaryValue> binaryB = b.binaryRepresentation.toList();
   List<LiteralTerm> terms = a.headerTerms;
@@ -118,5 +120,5 @@ PrimeImplicant _expandImplicant(Implicant a, Implicant b) {
     newTermMap[terms[i]] =
         binaryA[i] == binaryB[i] ? binaryA[i] : BinaryValue.redundant;
   }
-  return Implicant.create(newTermMap) as PrimeImplicant;
+  return Implicant.create(newTermMap);
 }

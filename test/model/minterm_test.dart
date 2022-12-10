@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:proof_map/utils/boolean_algebra/binary_result.dart';
 import 'package:proof_map/model/implicant.dart';
 
-import 'util/preset_terms.dart';
+import '../presets/preset_terms.dart';
 
 void main() {
   test(

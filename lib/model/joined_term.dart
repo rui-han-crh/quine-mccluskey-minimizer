@@ -58,14 +58,9 @@ class JoinedTerm extends Term {
               if (compare.negate() == term) {
                 if (isConjunction) {
                   return {LiteralTerm.zero};
-                } else if (uniqueTerms.length == 2) {
-                  return {LiteralTerm.one};
                 } else {
-                  uniqueTerms.removeAt(i);
-                  uniqueTerms.removeAt(j - 1);
-                  i--;
+                  return {LiteralTerm.one};
                 }
-                break;
               }
             }
             i++;
@@ -86,13 +81,25 @@ class JoinedTerm extends Term {
       (term is JoinedTerm && term.enclosedTerms.first == LiteralTerm.zero);
 
   // Simplifies the terms using Quine-McCluskey
+  @override
   JoinedTerm simplify() {
     Iterable<Implicant> minterms = toDisjunctiveNormalForm().getMinterms();
-    return JoinedTerm(
-        isConjunction: false,
-        terms: quine_mccluskey
-            .compute(minterms)
-            .map((e) => JoinedTerm(isConjunction: true, terms: e.terms)));
+    Iterable<Implicant> primeImplicants = quine_mccluskey.compute(minterms);
+
+    if (primeImplicants.length == 1) {
+      // if there is only 1 PI, then it is a conjunction of the minterms
+      return JoinedTerm(
+          isConjunction: true, terms: primeImplicants.first.terms);
+    } else {
+      // for every PI, if the PI covers only 1 term, then it is disjunct by
+      // only that term. If it covers many terms, then it is dijunct by the
+      // conjunction of the terms covered
+      return JoinedTerm(
+          isConjunction: false,
+          terms: primeImplicants.map((e) => e.terms.length == 1
+              ? e.terms.first
+              : JoinedTerm(isConjunction: true, terms: e.terms)));
+    }
   }
 
   DisjunctiveNormalForm toDisjunctiveNormalForm() {

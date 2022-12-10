@@ -4,7 +4,6 @@ import 'package:proof_map/exceptions/term_not_found_exception.dart';
 import 'package:proof_map/model/joined_term.dart';
 import 'package:proof_map/model/literal_term.dart';
 import 'package:proof_map/model/implicant.dart';
-import 'package:proof_map/model/minterm.dart';
 import 'package:proof_map/extensions/string_format_extension.dart';
 import 'package:proof_map/model/term.dart';
 
@@ -21,14 +20,13 @@ abstract class DisjunctiveNormalForm extends AppObject {
   /// The Set preserves insertion order as a LinkedHashSet <br>
   /// Example: disjunctiveNormalForm.getMinterms([a, b, c]) will generate
   /// valid minterms of abc
-  Iterable<Minterm> getMinterms(
+  Iterable<Implicant> getMinterms(
       [Iterable<LiteralTerm> orderedVariables = const {}]) {
     if (joinedTerm.isConjunction) {
       return [
         Implicant.create(Map.from({
-          for (Term t in joinedTerm.enclosedTerms as Iterable<LiteralTerm>)
-            t: BinaryValue.binaryOne
-        })) as Minterm
+          for (Term t in joinedTerm.enclosedTerms) t: BinaryValue.binaryOne
+        }))
       ];
     }
 
@@ -39,7 +37,7 @@ abstract class DisjunctiveNormalForm extends AppObject {
       orderedVariables = orderedVariables.toSet();
     }
 
-    Set<Minterm> minterms = {};
+    Set<Implicant> minterms = {};
     for (Term subtree in joinedTerm.enclosedTerms) {
       // A set of compulsory variables that have binary values determined
       Set<LiteralTerm> compulsorySet;
@@ -93,7 +91,7 @@ abstract class DisjunctiveNormalForm extends AppObject {
   /// terms and a group of don't-care-terms. <br>
   /// The parameter i is used to index the current don't-care-term of this
   /// current recursive level.
-  List<Minterm> _generateFromDontCareTerms(Set<LiteralTerm> compulsorySet,
+  List<Implicant> _generateFromDontCareTerms(Set<LiteralTerm> compulsorySet,
       List<LiteralTerm> dontCareList, Set<LiteralTerm> order,
       [int i = 0]) {
     if (i == dontCareList.length) {
@@ -104,7 +102,7 @@ abstract class DisjunctiveNormalForm extends AppObject {
             term: compulsorySet.contains(term)
                 ? BinaryValue.binaryOne
                 : BinaryValue.binaryZero
-        })) as Minterm
+        }))
       ];
     }
 

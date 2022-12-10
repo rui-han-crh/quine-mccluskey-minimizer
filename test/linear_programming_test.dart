@@ -56,6 +56,40 @@ void main() {
   });
 
   test(
+      'Given a problem: MINIMIZE Z = x1 + x2 + x3, subject to constraint x1 >= 1, x2 >= 1, x1 + x2 >= 1, x3 >= 1, x1 + x3 >= 1, x2 + x3 >= 1, x1 + x2 + x3 >= 1, when computed with 0-1 integer linear programming, then gives an answer x1 = 1, x2 = 1, x3 = 1',
+      () async {
+    // ARRANGE
+    Expression constraintOne =
+        Expression([1, 0, 0], ExpressionRelation.greaterThanOrEqualsTo, 1);
+    Expression constraintTwo =
+        Expression([0, 1, 0], ExpressionRelation.greaterThanOrEqualsTo, 1);
+    Expression constraintThree =
+        Expression([1, 1, 0], ExpressionRelation.greaterThanOrEqualsTo, 1);
+    Expression constraintFour =
+        Expression([0, 0, 1], ExpressionRelation.greaterThanOrEqualsTo, 1);
+    Expression constraintFive =
+        Expression([1, 0, 1], ExpressionRelation.greaterThanOrEqualsTo, 1);
+    Expression constraintSix =
+        Expression([0, 1, 1], ExpressionRelation.greaterThanOrEqualsTo, 1);
+    Expression constraintSeven =
+        Expression([1, 1, 1], ExpressionRelation.greaterThanOrEqualsTo, 1);
+
+    // ACT
+    List<int> result = binaryMinimize([
+      constraintSeven,
+      constraintFive,
+      constraintThree,
+      constraintOne,
+      constraintSix,
+      constraintTwo,
+      constraintFour
+    ]);
+
+    // ASSERT
+    expect(result, [1, 1, 1]);
+  });
+
+  test(
       'Given a problem: MINIMIZE Z = x1 - x2 + 3x3, subject to constraint x1 + x2 <= 20, x1 + x3 = 5 and x2 + x3 >= 10, when computed with general simplex algorithm, then gives an answer x1 = 0, x2 = 5, x3 = 5',
       () async {
     // ARRANGE

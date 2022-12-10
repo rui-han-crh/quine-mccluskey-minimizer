@@ -3,8 +3,8 @@ import 'package:proof_map/model/joined_term.dart';
 import 'package:proof_map/model/literal_term.dart';
 import 'package:proof_map/model/term.dart';
 import 'package:proof_map/model/variable.dart';
-import 'util/preset_terms.dart' as terms;
-import 'util/preset_variables.dart' as variables;
+import '../presets/preset_terms.dart' as terms;
+import '../presets/preset_variables.dart' as variables;
 
 void main() {
   Variable a = variables.a;
@@ -87,5 +87,18 @@ void main() {
     final JoinedTerm expectedTerm =
         JoinedTerm(isConjunction: false, terms: {LiteralTerm.one});
     expect(observedJoinedTerm, expectedTerm);
+  });
+
+  test(
+      'Given a preset term and an independently constructed term, when compared with equality, then determines them to be equal',
+      () async {
+    // Arrange
+    String a = "A";
+    LiteralTerm independentTermA = LiteralTerm(Variable(a), Variable("$a'"));
+
+    // Act
+
+    // Assert
+    expect(independentTermA, termA);
   });
 }

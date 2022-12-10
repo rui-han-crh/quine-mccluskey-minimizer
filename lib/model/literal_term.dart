@@ -16,6 +16,11 @@ class LiteralTerm extends Term {
   Variable get negatedVariable => _negatedVariable;
 
   @override
+  Term simplify() {
+    return this;
+  }
+
+  @override
   List<Object?> get props => [_currentVariable, _negatedVariable];
 
   @override
