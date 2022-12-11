@@ -9,6 +9,15 @@ const String constraintVariablesOfDifferentLength =
 
 const String enterExpressionMessage = "Enter your expression here...";
 
-const String simplifyText = "Simplify";
+const String mintermIndices = "Minterm indices";
+
+const String toDnfText = "Simplify as Disjunctive Normal Form";
 
 const String expressionSubmittedText = "Calculating";
+
+const String mintermBinaryRepresentationOverflow =
+    "Minterms indices must be between 0 and %s, but %s was out of bounds!";
+
+const String cannotBeEmptyString = "%s cannot be empty!";
+
+const String notValid = "%s is not a valid input for %s!";

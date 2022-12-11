@@ -5,7 +5,7 @@ import 'package:proof_map/app_object.dart';
 import 'package:proof_map/model/literal_term.dart';
 import 'package:proof_map/utils/messages.dart';
 
-import '../utils/boolean_algebra/binary_result.dart';
+import '../utils/boolean_algebra/binary_value.dart';
 
 class Implicant extends AppObject with EquatableMixin {
   final Map<LiteralTerm, BinaryValue> _terms;
@@ -57,9 +57,17 @@ class Implicant extends AppObject with EquatableMixin {
 
   /// Creates a minterm consisting of a variable number of terms and
   /// truthfulnesses. The arguments must be an amount of terms. </br>
-  /// Example: Minterm.create(termA, termB, termC, termNotD) -> corresponds
-  /// to minterm 1110 for variables ABCD <br>
-  /// This is a hidden constructor for derived classes.
+  /// Example: </br>
+  /// ```
+  /// Minterm.create(
+  ///   {termA: BinaryValue.one,
+  ///    termB: BinaryValue.one,
+  ///    termC: BinaryValue.one,
+  ///    termD: BinaryValue.zero
+  ///   }
+  /// )
+  /// ```
+  /// to minterm 1110 for variables ABCD
   Implicant.create(Map<LiteralTerm, BinaryValue> terms)
       : _terms = Map.of(terms),
         _numberOfOnes =

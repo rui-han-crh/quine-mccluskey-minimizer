@@ -30,6 +30,10 @@ class LiteralTerm extends Term {
       : _currentVariable = Variable(positiveStatement),
         _negatedVariable = Variable(negatedStatement);
 
+  LiteralTerm.fromStatement(String postulate)
+      : _currentVariable = Variable(postulate),
+        _negatedVariable = Variable("$postulate'");
+
   LiteralTerm(this._currentVariable, this._negatedVariable);
 
   // Describes this term as a statement

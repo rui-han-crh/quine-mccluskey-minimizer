@@ -1,6 +1,6 @@
 import 'dart:collection';
 
-import 'package:proof_map/utils/boolean_algebra/binary_result.dart';
+import 'package:proof_map/utils/boolean_algebra/binary_value.dart';
 import 'package:proof_map/model/implicant.dart';
 
 import 'preset_terms.dart';

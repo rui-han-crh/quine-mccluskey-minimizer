@@ -1,5 +1,5 @@
 import 'package:proof_map/app_object.dart';
-import 'package:proof_map/utils/boolean_algebra/binary_result.dart';
+import 'package:proof_map/utils/boolean_algebra/binary_value.dart';
 import 'package:proof_map/exceptions/term_not_found_exception.dart';
 import 'package:proof_map/model/joined_term.dart';
 import 'package:proof_map/model/literal_term.dart';

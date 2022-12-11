@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:proof_map/model/model.dart';
 import 'package:proof_map/model/parser.dart';
-import 'package:proof_map/view/home_page.dart';
+import 'package:proof_map/view/simplication_page.dart';
 import 'package:window_size/window_size.dart';
 
 void main() {

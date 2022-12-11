@@ -1,6 +1,6 @@
 import 'dart:developer';
 
-import 'package:proof_map/utils/boolean_algebra/binary_result.dart';
+import 'package:proof_map/utils/boolean_algebra/binary_value.dart';
 import 'package:proof_map/utils/linear_programming/expression.dart';
 import 'package:proof_map/utils/linear_programming/expression_relation.dart';
 import 'package:proof_map/model/implicant.dart';

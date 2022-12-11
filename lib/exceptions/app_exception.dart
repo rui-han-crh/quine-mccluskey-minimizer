@@ -5,8 +5,7 @@ class AppException with EquatableMixin implements Exception {
 
   AppException(this._errorMessage);
 
-  @override
-  String toString() => _errorMessage;
+  String get errorMessage => _errorMessage;
 
   @override
   List<Object?> get props => [_errorMessage];

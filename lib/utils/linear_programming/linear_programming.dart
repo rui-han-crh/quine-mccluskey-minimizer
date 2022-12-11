@@ -207,12 +207,12 @@ List<double> minimize(List<double> objectiveFunctionCoefficients,
       }
     }
 
-    log("----------------------------");
-    log("Selected $maximumColumn, $minimumRow");
-    log("    x1    x2    x3    x4    x5    x6    s1    s2    s3    s4    s5    s6    s7    a1    a2    a3    a4    a5    a6    a7");
-    for (var row in matrix) {
-      log(row.map((e) => "${" " * (6 - e.toString().length)}$e").join());
-    }
+    // log("----------------------------");
+    // log("Selected $maximumColumn, $minimumRow");
+    // log("    x1    x2    x3    x4    x5    x6    s1    s2    s3    s4    s5    s6    s7    a1    a2    a3    a4    a5    a6    a7");
+    // for (var row in matrix) {
+    //   log(row.map((e) => "${" " * (6 - e.toString().length)}$e").join());
+    // }
   }
 
   List<double> result = List.filled(numberOfVariables, 0);
