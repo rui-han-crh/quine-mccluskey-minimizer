@@ -1,6 +1,7 @@
 import 'dart:collection';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:proof_map/model/literal_term.dart';
 import 'package:proof_map/utils/boolean_algebra/binary_value.dart';
 import 'package:proof_map/model/implicant.dart';
 
@@ -56,5 +57,38 @@ void main() {
 
     // Assert
     expect(minterm.terms, [termA, termNotB, termC, termD]);
+  });
+
+  test(
+      "Given variables ABCD'E as -----, when constructed and retrieving the terms, then produces terms A, B', C and D",
+      () async {
+    // Arrange
+
+    // Act
+    Implicant minterm = Implicant.create(LinkedHashMap.from({
+      termA: BinaryValue.redundant,
+      termB: BinaryValue.redundant,
+      termC: BinaryValue.redundant,
+      termNotD: BinaryValue.redundant,
+      termE: BinaryValue.binaryOne,
+    }));
+
+    // Assert
+    expect(minterm.terms, [termE]);
+  });
+
+  test(
+      "Given variables AB --, when constructed and retrieving the terms, then produces terms 1",
+      () async {
+    // Arrange
+
+    // Act
+    Implicant minterm = Implicant.create(LinkedHashMap.from({
+      termA: BinaryValue.redundant,
+      termB: BinaryValue.redundant,
+    }));
+
+    // Assert
+    expect(minterm.terms, LiteralTerm.one);
   });
 }

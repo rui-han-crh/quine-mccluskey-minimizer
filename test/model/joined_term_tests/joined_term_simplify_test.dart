@@ -75,4 +75,22 @@ void main() {
           JoinedTerm(isConjunction: true, terms: [termC, termD]),
         ]));
   });
+
+  test(
+      "Given A + B + D' + E + C', when simplified and negated, then correctly produces JoinedTerm A' · B' · C · D · E'",
+      () async {
+    // ARRANGE
+    Term input = JoinedTerm(isConjunction: false, terms: [
+      termA,
+      JoinedTerm(isConjunction: true, terms: [termB, termC]),
+      termNotD,
+      JoinedTerm(isConjunction: false, terms: [termE, termNotC])
+    ]);
+
+    // ACT
+    Term simplified = input.simplify().negate();
+
+    // ASSERT
+    expect(simplified, termNotA.conjunction(termNotB, termC, termD, termNotE));
+  });
 }

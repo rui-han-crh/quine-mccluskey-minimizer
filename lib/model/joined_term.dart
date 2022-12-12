@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:proof_map/model/disjunctive_normal_form.dart';
 import 'package:proof_map/model/literal_term.dart';
 import 'package:proof_map/model/implicant.dart';
@@ -27,6 +29,11 @@ class JoinedTerm extends Term {
           int i = 0;
           while (i < uniqueTerms.length) {
             Term term = uniqueTerms[i];
+
+            if (term is JoinedTerm && term._isConjunction == isConjunction) {
+              uniqueTerms.removeAt(i);
+              uniqueTerms.addAll(term._terms.toList());
+            }
 
             if (isConjunction) {
               if (term == LiteralTerm.zero ||
@@ -83,8 +90,12 @@ class JoinedTerm extends Term {
   // Simplifies the terms using Quine-McCluskey
   @override
   JoinedTerm simplify() {
+    log(toDisjunctiveNormalForm().joinedTerm.toString());
     Iterable<Implicant> minterms = toDisjunctiveNormalForm().getMinterms();
+    log(minterms.toList().toString());
     Iterable<Implicant> primeImplicants = quine_mccluskey.compute(minterms);
+
+    assert(primeImplicants.isNotEmpty);
 
     if (primeImplicants.length == 1) {
       // if there is only 1 PI, then it is a conjunction of the minterms

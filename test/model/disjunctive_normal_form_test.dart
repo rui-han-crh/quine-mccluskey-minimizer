@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:proof_map/model/disjunctive_normal_form.dart';
 import 'package:proof_map/exceptions/term_not_found_exception.dart';
 import 'package:proof_map/model/joined_term.dart';
+import 'package:proof_map/utils/boolean_algebra/binary_value.dart';
 import 'package:proof_map/utils/messages.dart';
 import 'package:proof_map/model/implicant.dart';
 import 'package:proof_map/extensions/string_format_extension.dart';
@@ -131,5 +132,29 @@ void main() {
       abcdMintermThirteen,
       abcdMintermFifteen
     });
+  });
+
+  test(
+      "Given a joined term of A + (B · C) + D' + E + C', when converted to minterms of ABCDE, produces minterm 3, 5, 7, 9, 11, 13, 15",
+      () async {
+    // Arrange
+    JoinedTerm term =
+        termA.disjunction(termB.conjunction(termC), termNotD, termE, termNotC);
+
+    // Act
+    DisjunctiveNormalForm expression = term.toDisjunctiveNormalForm();
+
+    // Assert
+    expect(
+        expression.getMinterms(
+          {termA, termB, termC, termD, termE},
+        ).contains(Implicant.create({
+          termA: BinaryValue.binaryZero,
+          termB: BinaryValue.binaryZero,
+          termC: BinaryValue.binaryOne,
+          termD: BinaryValue.binaryOne,
+          termE: BinaryValue.binaryZero
+        })),
+        false);
   });
 }

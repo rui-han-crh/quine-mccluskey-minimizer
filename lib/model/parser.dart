@@ -77,6 +77,12 @@ class Parser extends AppObject {
       throw ArgumentError.value(expression);
     }
 
+    log(expression
+        .split(RegExp("\\s*(?=\\+|\\·|\\(|\\))|(?<=\\+|\\·|\\(|\\))\\s*"))
+        .where((e) => e.isNotEmpty)
+        .toList()
+        .toString());
+
     return _toBooleanExpression(expression
         .split(RegExp("\\s*(?=\\+|\\·|\\(|\\))|(?<=\\+|\\·|\\(|\\))\\s*"))
         .where((e) => e.isNotEmpty)
@@ -96,7 +102,11 @@ class Parser extends AppObject {
           break;
         case ")":
           if (isConjunction == null) {
-            throw ArgumentError.notNull();
+            if (terms.length > 1) {
+              throw ArgumentError.notNull();
+            } else {
+              return terms.last;
+            }
           }
           // this ends the nested sequence, return to caller
           return JoinedTerm(isConjunction: isConjunction, terms: terms);
@@ -129,6 +139,10 @@ class Parser extends AppObject {
             terms = [JoinedTerm(isConjunction: true, terms: terms)];
             isConjunction = false;
           }
+          break;
+
+        case "'":
+          terms[terms.length - 1] = terms.last.negate();
           break;
 
         default:

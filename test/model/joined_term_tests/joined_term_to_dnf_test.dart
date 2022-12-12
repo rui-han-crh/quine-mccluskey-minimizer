@@ -19,7 +19,8 @@ void main() {
     DisjunctiveNormalForm convertedTerm = together.toDisjunctiveNormalForm();
 
     // Assert
-    expect(convertedTerm.joinedTerm.statement, "(A · B) + (A · B · C)");
+    expect(convertedTerm.joinedTerm,
+        termA.conjunction(termB).disjunction(termA.conjunction(termB, termC)));
   });
 
   test(
@@ -57,7 +58,8 @@ void main() {
     DisjunctiveNormalForm convertedTerm = together.toDisjunctiveNormalForm();
 
     // Assert
-    expect(convertedTerm.joinedTerm.statement, "(A · B · C) + (A · B)");
+    expect(convertedTerm.joinedTerm,
+        termA.conjunction(termB, termC).disjunction(termA.conjunction(termB)));
   });
 
   test(
@@ -74,7 +76,10 @@ void main() {
     DisjunctiveNormalForm convertedTerm = together.toDisjunctiveNormalForm();
 
     // Assert
-    expect(convertedTerm.joinedTerm.statement, "(A · B' · C)");
+    expect(
+        convertedTerm.joinedTerm,
+        JoinedTerm(
+            isConjunction: false, terms: [termA.conjunction(termNotB, termC)]));
   });
 
   test(

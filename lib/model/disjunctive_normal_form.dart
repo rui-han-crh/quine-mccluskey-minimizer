@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:proof_map/app_object.dart';
 import 'package:proof_map/utils/boolean_algebra/binary_value.dart';
 import 'package:proof_map/exceptions/term_not_found_exception.dart';
@@ -47,7 +49,9 @@ abstract class DisjunctiveNormalForm extends AppObject {
       if (subtree is! JoinedTerm) {
         // there will only be one compulsory term, the rest of the terms take
         // any value
-        difference = orderedVariables.where((e) => e != subtree).toList();
+        difference = orderedVariables
+            .where((e) => e != subtree && e != subtree.negate())
+            .toList();
         compulsorySet = {subtree as LiteralTerm};
       } else {
         // the compulsory terms are all the terms in this subtree
@@ -67,6 +71,7 @@ abstract class DisjunctiveNormalForm extends AppObject {
           }
         }
       }
+      log("Term $subtree, ${_generateFromDontCareTerms(compulsorySet, difference, orderedVariables as Set<LiteralTerm>).toList().toString()}");
       minterms.addAll(_generateFromDontCareTerms(
           compulsorySet, difference, orderedVariables as Set<LiteralTerm>));
     }
