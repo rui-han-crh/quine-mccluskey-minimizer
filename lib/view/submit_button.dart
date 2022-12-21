@@ -1,15 +1,15 @@
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:proof_map/model/model.dart';
+import 'package:proof_map/model/answer.dart';
 import 'package:proof_map/utils/messages.dart' as messages;
 
 class SubmitButton extends StatefulWidget {
   final Model _model;
   final Function()? _onClicked;
   final Function _getTextCallback;
-  final Function(String) _assignResultCallback;
+  final Function(Answer) _assignResultCallback;
 
   SubmitButton(
       {super.key,
@@ -99,8 +99,9 @@ class _SubmitButtonState extends State<SubmitButton> {
     });
 
     await widget._model
-        .simplifyBooleanExpression(widget._getTextCallback())
+        .solveAlgebraic(widget._getTextCallback())
         .then((value) => widget._assignResultCallback(value));
+
     setState(() {
       _isSubmitted = false;
     });
@@ -134,7 +135,7 @@ class _SumOfProductsSubmitButtonState extends State<SumOfProductsSubmitButton> {
     });
 
     await widget._model
-        .simplifyFromMinterms(
+        .solveMinterms(
           widget._getVariablesCallback(),
           widget._getTextCallback(),
         )

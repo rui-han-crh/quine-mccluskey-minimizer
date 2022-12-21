@@ -1,12 +1,22 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:proof_map/model/disjunctive_normal_form.dart';
 import 'package:proof_map/model/joined_term.dart';
-import 'package:proof_map/model/literal_term.dart';
-import 'package:proof_map/model/term.dart';
+import 'package:proof_map/model/normal_form.dart';
 import '../../presets/preset_terms.dart';
-import '../../presets/preset_variables.dart';
 
 void main() {
+  test(
+      'Given a A + B, when converted to disjunctive normal form, then produces A + B',
+      () async {
+    // Arrange
+    JoinedTerm term = JoinedTerm(isConjunction: false, terms: [termA, termB]);
+
+    // Act
+    DisjunctiveNormalForm convertedTerm = term.toDisjunctiveNormalForm();
+
+    // Assert
+    expect(convertedTerm.joinedTerm, termA.disjunction(termB));
+  });
+
   test(
       'Given a (A · B) · (B + C), when converted to disjunctive normal form, then produces (A · B) + (A · B · C)',
       () async {
@@ -113,7 +123,7 @@ void main() {
     DisjunctiveNormalForm convertedTerm = together.toDisjunctiveNormalForm();
 
     // Assert
-    expect(convertedTerm.joinedTerm.statement, "(A · B) + (A' · C) + (B · C)");
+    expect(convertedTerm.joinedTerm.postulate, "(A · B) + (A' · C) + (B · C)");
     expect(convertedTerm.joinedTerm, together);
   });
 
@@ -130,7 +140,7 @@ void main() {
     DisjunctiveNormalForm convertedTerm = together.toDisjunctiveNormalForm();
 
     // Assert
-    expect(convertedTerm.joinedTerm.statement, "(A · B) + (C · D)");
+    expect(convertedTerm.joinedTerm.postulate, "(A · B) + (C · D)");
     expect(
         convertedTerm.joinedTerm,
         JoinedTerm(isConjunction: false, terms: [

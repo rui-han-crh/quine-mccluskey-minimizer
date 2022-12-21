@@ -26,7 +26,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
 
   FlutterWindow window(project);
   Win32Window::Point origin(10, 10);
-  Win32Window::Size size(560, 900);
+  Win32Window::Size size(800, 650);
   if (!window.CreateAndShow(L"proof_map", origin, size)) {
     return EXIT_FAILURE;
   }

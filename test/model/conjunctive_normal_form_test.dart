@@ -2,7 +2,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:proof_map/exceptions/term_not_found_exception.dart';
 import 'package:proof_map/model/joined_term.dart';
 import 'package:proof_map/model/normal_form.dart';
-import 'package:proof_map/utils/boolean_algebra/binary_value.dart';
 import 'package:proof_map/utils/messages.dart';
 import 'package:proof_map/model/implicant.dart';
 import 'package:proof_map/extensions/string_extension.dart';
@@ -12,7 +11,7 @@ import '../presets/preset_terms.dart';
 
 void main() {
   test(
-      "Given a joined term of A + (A · B) + (B · C) + (C · A), when converted to minterms of this ABC, produces minterms 3 to 7 with variables ABC",
+      "Given a joined term of A + (A · B) + (B · C) + (C · A), when converted to maxterms of this ABC, produces maxterms 5 to 7 with variables ABC",
       () async {
     // Arrange
     JoinedTerm aAndB = termA.conjunction(termB);
@@ -21,21 +20,15 @@ void main() {
     JoinedTerm joinedTerm = termA.disjunction(aAndB, bAndC, cAndA);
 
     // Act
-    Iterable<Implicant> minterms =
-        joinedTerm.toDisjunctiveNormalForm().getMinterms({termA, termB, termC});
+    Iterable<Implicant> maxterms =
+        joinedTerm.toConjunctiveNormalForm().getMaxterms({termA, termB, termC});
 
     // Assert
-    expect(minterms, {
-      abcMintermThree,
-      abcMintermFour,
-      abcMintermFive,
-      abcMintermSix,
-      abcMintermSeven
-    });
+    expect(maxterms, {abcMintermFive, abcMintermSix, abcMintermSeven});
   });
 
   test(
-      "Given a joined term of A + (A · B) + (B · C) + (C · A), when converted to minterms of ABCD (excess terms), produces minterms 6 to 15 with variables ABCD",
+      "Given a joined term of A + (A · B) + (B · C) + (C · A), when converted to maxterms of ABCD (excess terms), produces maxterms 10 to 15 with variables ABCD",
       () async {
     // Arrange
     JoinedTerm aAndB = termA.conjunction(termB);
@@ -45,15 +38,11 @@ void main() {
 
     // Act
     Iterable<Implicant> minterms = joinedTerm
-        .toDisjunctiveNormalForm()
-        .getMinterms({termA, termB, termC, termD});
+        .toConjunctiveNormalForm()
+        .getMaxterms({termA, termB, termC, termD});
 
     // Assert
     expect(minterms, {
-      abcdMintermSix,
-      abcdMintermSeven,
-      abcdMintermEight,
-      abcdMintermNine,
       abcdMintermTen,
       abcdMintermEleven,
       abcdMintermTwelve,
@@ -64,7 +53,7 @@ void main() {
   });
 
   test(
-      "Given a joined term of A + (A · B) + (B · C) + (C · A), when converted to minterms of AB, then produces an error due to insufficient terms",
+      "Given a joined term of A + (A · B) + (B · C) + (C · A), when converted to maxterms of AB, then produces an error due to insufficient terms",
       () async {
     // Arrange
     JoinedTerm aAndB = termA.conjunction(termB);
@@ -73,15 +62,15 @@ void main() {
     JoinedTerm joinedTerm = termA.disjunction(aAndB, bAndC, cAndA);
 
     // Act
-    DisjunctiveNormalForm expression = joinedTerm.toDisjunctiveNormalForm();
+    ConjunctiveNormalForm expression = joinedTerm.toConjunctiveNormalForm();
 
     // Assert
-    expect(() => expression.getMinterms({termA, termB}),
+    expect(() => expression.getMaxterms({termA, termB}),
         throwsA(TermNotFoundException(termNotFoundMessage.format(termC))));
   });
 
   test(
-      "Given a joined term of (A · B) + (B · C) + (C · A'), when converted to minterms of ABC, produces minterms 1, 3, 6, 7",
+      "Given a joined term of (A · B) + (B · C) + (C · A'), when converted to maxterms of ABC, produces maxterms 2, 3, 5, 7",
       () async {
     // Arrange
     JoinedTerm aAndB = termA.conjunction(termB);
@@ -90,11 +79,12 @@ void main() {
     JoinedTerm joinedTerm = aAndB.disjunction(bAndC, cAndNotA);
 
     // Act
-    DisjunctiveNormalForm expression = joinedTerm.toDisjunctiveNormalForm();
+    Iterable<Implicant> maxterms =
+        joinedTerm.toConjunctiveNormalForm().getMaxterms({termA, termB, termC});
 
     // Assert
-    expect(expression.getMinterms({termA, termB, termC}),
-        {abcMintermOne, abcMintermThree, abcMintermSix, abcMintermSeven});
+    expect(maxterms,
+        {abcMintermTwo, abcMintermThree, abcMintermFive, abcMintermSeven});
   });
 
   test(
@@ -104,10 +94,11 @@ void main() {
     JoinedTerm aAndB = termA.conjunction(termB);
 
     // Act
-    DisjunctiveNormalForm expression = aAndB.toDisjunctiveNormalForm();
+    Iterable<Implicant> maxterm =
+        aAndB.toConjunctiveNormalForm().getMaxterms({termA, termB});
 
     // Assert
-    expect(expression.getMinterms({termA, termB}), {abMintermThree});
+    expect(maxterm, {abMintermOne, abMintermTwo, abMintermThree});
   });
 
   test(
@@ -120,41 +111,21 @@ void main() {
     JoinedTerm together = aAndD.disjunction(bAndD, cAndD);
 
     // Act
-    DisjunctiveNormalForm expression = together.toDisjunctiveNormalForm();
+    Iterable<Implicant> maxterms = together
+        .toConjunctiveNormalForm()
+        .getMaxterms({termA, termB, termC, termD});
 
     // Assert
-    expect(expression.getMinterms({termA, termB, termC, termD}), {
+    expect(maxterms, {
+      abcdMintermOne,
       abcdMintermThree,
       abcdMintermFive,
       abcdMintermSeven,
       abcdMintermNine,
       abcdMintermEleven,
       abcdMintermThirteen,
+      abcdMintermFourteen,
       abcdMintermFifteen
     });
-  });
-
-  test(
-      "Given a joined term of A + (B · C) + D' + E + C', when converted to minterms of ABCDE, produces minterm 3, 5, 7, 9, 11, 13, 15",
-      () async {
-    // Arrange
-    JoinedTerm term =
-        termA.disjunction(termB.conjunction(termC), termNotD, termE, termNotC);
-
-    // Act
-    DisjunctiveNormalForm expression = term.toDisjunctiveNormalForm();
-
-    // Assert
-    expect(
-        expression.getMinterms(
-          {termA, termB, termC, termD, termE},
-        ).contains(Implicant.create({
-          termA: BinaryValue.binaryZero,
-          termB: BinaryValue.binaryZero,
-          termC: BinaryValue.binaryOne,
-          termD: BinaryValue.binaryOne,
-          termE: BinaryValue.binaryZero
-        })),
-        false);
   });
 }

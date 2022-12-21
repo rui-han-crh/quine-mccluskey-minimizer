@@ -1,45 +1,62 @@
-import 'dart:math';
-
 import 'package:proof_map/app_object.dart';
 import 'package:proof_map/exceptions/invalid_argument_exception.dart';
-import 'package:proof_map/model/joined_term.dart';
+import 'package:proof_map/extensions/string_extension.dart';
+import 'package:proof_map/model/answer.dart';
+import 'package:proof_map/model/mutable_combinational_storage.dart';
 import 'package:proof_map/model/parser.dart';
 import 'package:proof_map/model/term.dart';
+import 'package:proof_map/utils/messages.dart';
 import 'package:proof_map/view/utils/expression_form.dart';
 
 class Model extends AppObject {
-  Parser _parser;
-
   Model(this._parser);
 
-  ExpressionForm get expressionForm => ExpressionForm.sumOfProducts;
+  ExpressionForm expressionForm = ExpressionForm.algebraic;
 
-  Future<String> simplifyBooleanExpression(String expression) async {
-    if (expression.isEmpty) {
-      return "";
-    }
-    return _parser.toBooleanExpression(expression).simplify().statement;
+  final MutableCombinationalStorage storage = MutableCombinationalStorage();
+
+  final Parser _parser;
+
+  Model._(Parser parser) : _parser = parser;
+
+  void replace(
+      {String? algebraicExpression,
+      String? mintermVariables,
+      String? maxtermVariables,
+      Answer? answer}) {
+    storage.algebraicExpression =
+        algebraicExpression ?? storage.algebraicExpression;
+    storage.mintermVariables = mintermVariables ?? storage.mintermVariables;
+    storage.maxtermVariables = maxtermVariables ?? storage.maxtermVariables;
+    storage.answer = answer ?? storage.answer;
   }
 
-  Future<String> simplifyFromMinterms(String variables, String indices) async {
+  Future<Answer> solveAlgebraic(String expression) async {
+    if (expression.isEmpty) {
+      throw ArgumentError.value(
+          expression, "expression", cannotBeEmptyString.format(["expression"]));
+    }
+
+    return _simplifyToAnswer(_parser.parseAlgebraic(expression));
+  }
+
+  Future<Answer> solveMinterms(String variables, String indices) async {
     Term expression;
     try {
-      expression = _parser.fromMintermsToExpression(variables, indices);
-    } on InvalidArgumentException catch (e) {
-      return e.errorMessage;
+      expression = _parser.parseMinterms(variables, indices);
+    } on InvalidArgumentException {
+      rethrow;
     }
 
+    return _simplifyToAnswer(expression);
+  }
+
+  Answer _simplifyToAnswer(Term expression) {
     Term simplified = expression.simplify();
 
-    if (simplified is JoinedTerm &&
-        simplified.enclosedTerms
-                .whereType<JoinedTerm>()
-                .map((e) => e.enclosedTerms.length)
-                .fold(0, max) >
-            4) {
-      return simplified.statement.split(RegExp("(?=\\+)")).join("\n");
-    }
-
-    return simplified.statement;
+    return Answer(
+        conjunctiveNormalForm: simplified.toConjunctiveNormalForm(),
+        disjunctiveNormalForm: simplified.toDisjunctiveNormalForm(),
+        simplestForm: simplified);
   }
 }

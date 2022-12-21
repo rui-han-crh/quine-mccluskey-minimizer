@@ -89,6 +89,6 @@ void main() {
     }));
 
     // Assert
-    expect(minterm.terms, LiteralTerm.one);
+    expect(minterm.terms, [LiteralTerm.one]);
   });
 }

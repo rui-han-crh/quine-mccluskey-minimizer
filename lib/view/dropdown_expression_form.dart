@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:proof_map/view/utils/expression_form.dart';
 
 const List<ExpressionForm> list = [
-  ExpressionForm.booleanExpression,
-  ExpressionForm.sumOfProducts
+  ExpressionForm.algebraic,
+  ExpressionForm.minterms
 ];
 
 class DropdownExpressionForm extends StatefulWidget {

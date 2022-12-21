@@ -16,7 +16,7 @@ void main() {
         JoinedTerm(isConjunction: false, terms: [termA, termB, termC]);
 
     // Assert
-    expect(joinedTerm.statement, "A + B + C");
+    expect(joinedTerm.postulate, "A + B + C");
   });
 
   test(
@@ -29,7 +29,7 @@ void main() {
         JoinedTerm(isConjunction: true, terms: [termA, termB, termC]);
 
     // Assert
-    expect(joinedTerm.statement, "A · B · C");
+    expect(joinedTerm.postulate, "A · B · C");
   });
 
   test(
@@ -43,7 +43,7 @@ void main() {
         JoinedTerm(isConjunction: true, terms: [termA, anotherTermA, termB]);
 
     // Assert
-    expect(joinedTerm.statement, "A · B");
+    expect(joinedTerm.postulate, "A · B");
   });
 
   test(
@@ -58,7 +58,7 @@ void main() {
     Term combined = joinedTerm.disjunction(literalTerm);
 
     // Assert
-    expect(combined.statement, "A + (A · B · C)");
+    expect(combined.postulate, "A + (A · B · C)");
   });
 
   test(
@@ -73,7 +73,7 @@ void main() {
     Term combined = joinedTerm.conjunction(literalTerm);
 
     // Assert
-    expect(combined.statement, "A · (A + B + C)");
+    expect(combined.postulate, "A · (A + B + C)");
   });
 
   test(

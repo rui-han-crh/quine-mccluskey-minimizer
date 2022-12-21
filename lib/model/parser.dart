@@ -2,7 +2,7 @@ import 'dart:developer';
 
 import 'package:proof_map/app_object.dart';
 import 'package:proof_map/exceptions/invalid_argument_exception.dart';
-import 'package:proof_map/extensions/string_format_extension.dart';
+import 'package:proof_map/extensions/string_extension.dart';
 import 'package:proof_map/model/implicant.dart';
 import 'package:proof_map/model/joined_term.dart';
 import 'package:proof_map/model/literal_term.dart';
@@ -24,7 +24,7 @@ class Parser extends AppObject {
   /// to the maximum number of minterms that the variables can accomodate. </br>
   /// Throws InvalidArgumentException if either variables or indices are empty
   /// strings.
-  Term fromMintermsToExpression(String variables, String indices) {
+  Term parseMinterms(String variables, String indices) {
     if (variables.isEmpty) {
       throw InvalidArgumentException(
           messages.cannotBeEmptyString.format("Variables"));
@@ -72,16 +72,10 @@ class Parser extends AppObject {
     return JoinedTerm(isConjunction: false, terms: terms);
   }
 
-  Term toBooleanExpression(String expression) {
+  Term parseAlgebraic(String expression) {
     if (expression.isEmpty) {
       throw ArgumentError.value(expression);
     }
-
-    log(expression
-        .split(RegExp("\\s*(?=\\+|\\·|\\(|\\))|(?<=\\+|\\·|\\(|\\))\\s*"))
-        .where((e) => e.isNotEmpty)
-        .toList()
-        .toString());
 
     return _toBooleanExpression(expression
         .split(RegExp("\\s*(?=\\+|\\·|\\(|\\))|(?<=\\+|\\·|\\(|\\))\\s*"))

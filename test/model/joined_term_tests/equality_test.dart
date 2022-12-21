@@ -1,8 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:proof_map/model/disjunctive_normal_form.dart';
 import 'package:proof_map/model/joined_term.dart';
 import 'package:proof_map/model/literal_term.dart';
-import 'package:proof_map/model/term.dart';
 import '../../presets/preset_terms.dart';
 import '../../presets/preset_variables.dart';
 

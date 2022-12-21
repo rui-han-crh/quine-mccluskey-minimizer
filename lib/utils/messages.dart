@@ -21,3 +21,8 @@ const String mintermBinaryRepresentationOverflow =
 const String cannotBeEmptyString = "%s cannot be empty!";
 
 const String notValid = "%s is not a valid input for %s!";
+
+const String tableHeaderLengthDifferentFromColumnLength =
+    "The provided table header of length %s does not match the number of columns %s!";
+
+const String keyDoesNotExistInMap = "The key %s does not exist in the map %s";

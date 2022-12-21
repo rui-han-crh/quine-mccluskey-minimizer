@@ -56,7 +56,7 @@ void main() {
     LiteralTerm literalTerm = LiteralTerm(variable, negatedVariable);
 
     // Act
-    LiteralTerm negatedTerm = literalTerm.negate() as LiteralTerm;
+    LiteralTerm negatedTerm = literalTerm.negate();
 
     // Assert
     expect(negatedTerm.currentVariable.statement, oppositeStatement);
@@ -72,7 +72,7 @@ void main() {
     LiteralTerm literalTerm = LiteralTerm(variable, negatedVariable);
 
     // Act
-    LiteralTerm negatedTerm = literalTerm.negate() as LiteralTerm;
+    LiteralTerm negatedTerm = literalTerm.negate();
 
     // Assert
     expect(negatedTerm.currentVariable, negatedVariableIndependent);

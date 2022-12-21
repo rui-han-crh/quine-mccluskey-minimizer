@@ -25,14 +25,24 @@ class Implicant extends AppObject with EquatableMixin {
   /// This will retrieve the header term if the it's value is a one, otherwise,
   /// it will retrieve the negation of the header term. <br>
   /// For example, implicant 1000 of ABCD has terms A, B', C', D'
-  List<LiteralTerm> get terms => _terms.entries
-      .where((e) => e.value != BinaryValue.redundant)
-      .map((e) => (e.value == BinaryValue.binaryOne)
-          ? e.key
-          : e.key.negate() as LiteralTerm)
-      .toList();
+  List<LiteralTerm> get terms {
+    Iterable<MapEntry<LiteralTerm, BinaryValue>> entries =
+        _terms.entries.where((e) => e.value != BinaryValue.redundant);
 
+    if (entries.isEmpty) {
+      return [LiteralTerm.one];
+    }
+    return entries
+        .map((e) => (e.value == BinaryValue.binaryOne) ? e.key : e.key.negate())
+        .toList();
+  }
+
+  /// Returns the binary representation as a list of BinaryValues
   Iterable<BinaryValue> get binaryRepresentation => _terms.values;
+
+  /// Returns the binary representaiton as a string of ones, zeros and dont-cares
+  String get binaryString =>
+      binaryRepresentation.map((e) => e.representation).join();
 
   int get numberOfOnes => _numberOfOnes;
 

@@ -23,8 +23,8 @@ void main() {
         LiteralTerm.fromStatements(naturalStatement, negativeStatement);
 
     // Act
-    String observedNaturalStatement = term.statement;
-    String observedNegativeStatement = term.negate().statement;
+    String observedNaturalStatement = term.postulate;
+    String observedNegativeStatement = term.negate().postulate;
 
     // Assert
     expect(observedNaturalStatement, naturalStatement);

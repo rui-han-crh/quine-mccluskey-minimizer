@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 
 class ExpandedResultText extends StatefulWidget {
   final String _result;
-  const ExpandedResultText({super.key, required result}) : _result = result;
+  const ExpandedResultText({super.key, required result}) : _result = "";
 
   @override
   State<StatefulWidget> createState() => _ExpandedResultText();

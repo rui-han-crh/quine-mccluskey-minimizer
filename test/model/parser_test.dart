@@ -14,7 +14,7 @@ void main() {
     Parser p = Parser();
 
     // ACT
-    Term booleanExpression = p.toBooleanExpression(inputString);
+    Term booleanExpression = p.parseAlgebraic(inputString);
 
     // ASSERT
     expect(
@@ -37,7 +37,7 @@ void main() {
     Parser p = Parser();
 
     // ACT
-    Term booleanExpression = p.toBooleanExpression(inputString);
+    Term booleanExpression = p.parseAlgebraic(inputString);
 
     // ASSERT
     expect(
@@ -59,7 +59,7 @@ void main() {
     Parser p = Parser();
 
     // ACT
-    Term booleanExpression = p.toBooleanExpression(inputString);
+    Term booleanExpression = p.parseAlgebraic(inputString);
 
     // ASSERT
     expect(
@@ -78,7 +78,7 @@ void main() {
     Parser p = Parser();
 
     // ACT
-    Term booleanExpression = p.toBooleanExpression(inputString);
+    Term booleanExpression = p.parseAlgebraic(inputString);
 
     // ASSERT
     expect(booleanExpression,
@@ -93,7 +93,7 @@ void main() {
     Parser p = Parser();
 
     // ACT
-    Term booleanExpression = p.toBooleanExpression(inputString);
+    Term booleanExpression = p.parseAlgebraic(inputString);
 
     // ASSERT
     expect(
@@ -113,7 +113,7 @@ void main() {
     Parser p = Parser();
 
     // ACT
-    Term booleanExpression = p.toBooleanExpression(inputString);
+    Term booleanExpression = p.parseAlgebraic(inputString);
 
     // ASSERT
     expect(booleanExpression,
@@ -128,7 +128,7 @@ void main() {
     Parser p = Parser();
 
     // ACT
-    Term booleanExpression = p.toBooleanExpression(inputString);
+    Term booleanExpression = p.parseAlgebraic(inputString);
 
     // ASSERT
     expect(booleanExpression,
@@ -143,7 +143,7 @@ void main() {
     Parser p = Parser();
 
     // ACT
-    Term booleanExpression = p.toBooleanExpression(inputString);
+    Term booleanExpression = p.parseAlgebraic(inputString);
 
     // ASSERT
     expect(booleanExpression, termA);
@@ -157,7 +157,7 @@ void main() {
     Parser p = Parser();
 
     // ACT
-    Term booleanExpression = p.toBooleanExpression(inputString);
+    Term booleanExpression = p.parseAlgebraic(inputString);
 
     // ASSERT
     expect(booleanExpression,
@@ -172,7 +172,7 @@ void main() {
     Parser p = Parser();
 
     // ACT
-    Term booleanExpression = p.toBooleanExpression(inputString);
+    Term booleanExpression = p.parseAlgebraic(inputString);
 
     // ASSERT
     expect(booleanExpression,
@@ -187,7 +187,7 @@ void main() {
     Parser p = Parser();
 
     // ACT
-    Term booleanExpression = p.toBooleanExpression(inputString);
+    Term booleanExpression = p.parseAlgebraic(inputString);
 
     // ASSERT
     expect(

@@ -1,30 +1,76 @@
-import 'dart:developer';
-
 import 'package:proof_map/app_object.dart';
 import 'package:proof_map/utils/boolean_algebra/binary_value.dart';
 import 'package:proof_map/exceptions/term_not_found_exception.dart';
 import 'package:proof_map/model/joined_term.dart';
 import 'package:proof_map/model/literal_term.dart';
 import 'package:proof_map/model/implicant.dart';
-import 'package:proof_map/extensions/string_format_extension.dart';
+import 'package:proof_map/extensions/string_extension.dart';
 import 'package:proof_map/model/term.dart';
 
 import '../utils/messages.dart';
 
-abstract class DisjunctiveNormalForm extends AppObject {
-  /// Returns the underlying terms that make up this disjunctive normal form
-  JoinedTerm get joinedTerm;
-
+/// Represents a level-2 joined term of first-level disjunctions </br>
+/// Examples of disjunctive normal forms: </br>
+/// ```
+/// A + B
+/// A + (B · C)
+/// A + B + (A · C) + (B · D) + D
+/// ```
+abstract class DisjunctiveNormalForm extends NormalForm {
   /// Retrieves the complete set of minterms from this disjunctive normal form <br>
   /// Optionally, pass in an order of all variables that the minterms will be
   /// generated in. If no order is given, the minterms will be recorded in order
   /// of variables seen. <br>
-  /// The Set preserves insertion order as a LinkedHashSet <br>
-  /// Example: disjunctiveNormalForm.getMinterms([a, b, c]) will generate
+  /// The `Set` preserves insertion order as a `LinkedHashSet` <br>
+  /// Example: `disjunctiveNormalForm.getMinterms([a, b, c])` will generate
   /// valid minterms of abc
   Iterable<Implicant> getMinterms(
       [Iterable<LiteralTerm> orderedVariables = const {}]) {
-    if (joinedTerm.isConjunction) {
+    return super._getMinOrMaxTerms(true, orderedVariables);
+  }
+}
+
+/// Represents a level-2 joined term of first-level conjunctions </br>
+/// Examples of conjunctive normal forms: </br>
+/// ```
+/// A · B
+/// A · (B + C)
+/// A · B · (A + C) · (B + D) + D
+/// ```
+abstract class ConjunctiveNormalForm extends NormalForm {
+  /// Retrieves the complete set of minterms from this conjuctive normal form <br>
+  /// Optionally, pass in an order of all variables that the maxterms will be
+  /// generated in. If no order is given, the maxterms will be recorded in order
+  /// of variables seen. <br>
+  /// The `Set` preserves insertion order as a `LinkedHashSet` <br>
+  /// Example: `conjunctiveNormalForm.getMaxterms([a, b, c])` will generate
+  /// valid maxterms of abc
+  Iterable<Implicant> getMaxterms(
+      [Iterable<LiteralTerm> orderedVariables = const {}]) {
+    return super._getMinOrMaxTerms(false, orderedVariables);
+  }
+}
+
+abstract class NormalForm extends AppObject {
+  /// The expression that is returned on a toString() call. This value will be
+  /// cached on the first call to toString()
+  String? _expression;
+
+  /// Returns the underlying terms that make up this disjunctive normal form
+  JoinedTerm get joinedTerm;
+
+  /// Retrieves the complete set of min or max terms from this normal form <br>
+  /// Optionally, pass in an order of all variables that the min or max terms
+  /// will be generated in. If no order is given, the minterms will be recorded
+  /// in order of variables seen. <br>
+  /// The Set preserves insertion order as a LinkedHashSet <br>
+  Iterable<Implicant> _getMinOrMaxTerms(bool isMinterm,
+      [Iterable<LiteralTerm> orderedVariables = const {}]) {
+    if (joinedTerm.isConjunction == isMinterm) {
+      // joinedTerm root is conjunction and requires minterms
+      // -> joined term is the minterm
+      // joinedTerm root is disjunction and requires maxterms
+      // -> joined term is the maxterm
       return [
         Implicant.create(Map.from({
           for (Term t in joinedTerm.enclosedTerms) t: BinaryValue.binaryOne
@@ -39,7 +85,7 @@ abstract class DisjunctiveNormalForm extends AppObject {
       orderedVariables = orderedVariables.toSet();
     }
 
-    Set<Implicant> minterms = {};
+    Set<Implicant> simplestImplicants = {};
     for (Term subtree in joinedTerm.enclosedTerms) {
       // A set of compulsory variables that have binary values determined
       Set<LiteralTerm> compulsorySet;
@@ -71,11 +117,11 @@ abstract class DisjunctiveNormalForm extends AppObject {
           }
         }
       }
-      log("Term $subtree, ${_generateFromDontCareTerms(compulsorySet, difference, orderedVariables as Set<LiteralTerm>).toList().toString()}");
-      minterms.addAll(_generateFromDontCareTerms(
+
+      simplestImplicants.addAll(_generateFromDontCareTerms(
           compulsorySet, difference, orderedVariables as Set<LiteralTerm>));
     }
-    return minterms;
+    return simplestImplicants;
   }
 
   Set<LiteralTerm> _getTermsOrder(Term tree, Set<LiteralTerm> currentSet) {
@@ -116,11 +162,18 @@ abstract class DisjunctiveNormalForm extends AppObject {
     Set<LiteralTerm> compulsorySetWithTerm = Set.from(compulsorySet);
     compulsorySetWithTerm.add(nextTerm);
     Set<LiteralTerm> compulsorySetWithNegatedTerm = Set.from(compulsorySet);
-    compulsorySetWithNegatedTerm.add(nextTerm.negate() as LiteralTerm);
+    compulsorySetWithNegatedTerm.add(nextTerm.negate());
 
     return _generateFromDontCareTerms(
             compulsorySetWithTerm, dontCareList, order, i + 1) +
         _generateFromDontCareTerms(
             compulsorySetWithNegatedTerm, dontCareList, order, i + 1);
+  }
+
+  @override
+  String toString() {
+    _expression ??=
+        joinedTerm.sort((a, b) => a.postulate.compareTo(b.postulate)).postulate;
+    return _expression!;
   }
 }

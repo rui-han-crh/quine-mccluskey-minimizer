@@ -1,8 +1,9 @@
 import 'dart:developer';
 
-import 'package:proof_map/model/disjunctive_normal_form.dart';
+import 'package:proof_map/extensions/string_extension.dart';
 import 'package:proof_map/model/literal_term.dart';
 import 'package:proof_map/model/implicant.dart';
+import 'package:proof_map/model/normal_form.dart';
 import 'package:proof_map/utils/boolean_algebra/quine_mccluskey.dart'
     as quine_mccluskey;
 import 'package:proof_map/model/term.dart';
@@ -23,75 +24,116 @@ class JoinedTerm extends Term {
   /// Example: `JoinedTerm(isConjunction: true, terms: [A, notA])` produces `JoinedTerm<LiteralTerm.true>`
   JoinedTerm({required isConjunction, required Iterable<Term> terms})
       : _isConjunction = isConjunction,
-        _terms = ((terms) {
-          List<Term> uniqueTerms = Set.from(terms).map<Term>((e) => e).toList();
-
-          int i = 0;
-          while (i < uniqueTerms.length) {
-            Term term = uniqueTerms[i];
-
-            if (term is JoinedTerm && term._isConjunction == isConjunction) {
-              uniqueTerms.removeAt(i);
-              uniqueTerms.addAll(term._terms.toList());
-            }
-
-            if (isConjunction) {
-              if (term == LiteralTerm.zero ||
-                  (term is JoinedTerm && _joinedTermIsLiteralZero(term))) {
-                // Zero Element
-                return {LiteralTerm.zero};
-              } else if (uniqueTerms.length > 1 &&
-                  (term == LiteralTerm.one || _joinedTermIsLiteralOne(term))) {
-                // Identity Law
-                uniqueTerms.removeAt(i);
-                i--;
-              }
-            } else {
-              if (uniqueTerms.length > 1 &&
-                  (term == LiteralTerm.zero ||
-                      _joinedTermIsLiteralZero(term))) {
-                // Identity Law
-                uniqueTerms.removeAt(i);
-                i--;
-              } else if (term == LiteralTerm.one ||
-                  _joinedTermIsLiteralOne(term)) {
-                // One Element
-                return {LiteralTerm.one};
-              }
-            }
-
-            for (int j = i + 1; j < uniqueTerms.length; j++) {
-              Term compare = uniqueTerms[j];
-              if (compare.negate() == term) {
-                if (isConjunction) {
-                  return {LiteralTerm.zero};
-                } else {
-                  return {LiteralTerm.one};
-                }
-              }
-            }
-            i++;
-          }
-
-          return uniqueTerms.toSet();
-        })(terms),
+        _terms = _constructTerms(terms, isConjunction),
         super();
 
-  /// Returns true only if the term is a joined term and contains only a
-  /// literal one with no other terms
-  static bool _joinedTermIsLiteralOne(Term term) =>
-      (term is JoinedTerm && term.enclosedTerms.first == LiteralTerm.one);
+  /// Constructs the set of terms enclosed in this JoinedTerm, simplifying
+  /// the expression with zero/one element and identity laws.
+  static Set<Term> _constructTerms(
+      Iterable<Term> terms, bool rootIsConjunction) {
+    List<Term> uniqueTerms = Set<Term>.from(terms).toList();
 
-  /// Returns true only if the term is a joined term and contains only a
-  /// literal zero with no other terms
-  static bool _joinedTermIsLiteralZero(Term term) =>
-      (term is JoinedTerm && term.enclosedTerms.first == LiteralTerm.zero);
+    /// Returns true only if the term is a joined term and contains only a
+    /// literal one with no other terms.
+    bool isJoinedTermAndLiteralOne(Term term) =>
+        (term is JoinedTerm && term.enclosedTerms.first == LiteralTerm.one);
+
+    /// Returns true only if the term is a joined term and contains only a
+    /// literal zero with no other terms.
+    bool isJoinedTermIsLiteralZero(Term term) =>
+        (term is JoinedTerm && term.enclosedTerms.first == LiteralTerm.zero);
+
+    for (int i = 0; i < uniqueTerms.length; i++) {
+      Term term = uniqueTerms[i];
+
+      if (term is JoinedTerm && term._isConjunction == rootIsConjunction) {
+        uniqueTerms.removeAt(i);
+        uniqueTerms.addAll(term._terms.toList());
+      }
+
+      if (rootIsConjunction) {
+        if (term == LiteralTerm.zero || isJoinedTermIsLiteralZero(term)) {
+          // Zero Element
+          return {LiteralTerm.zero};
+        } else if (uniqueTerms.length > 1 &&
+            (term == LiteralTerm.one || isJoinedTermAndLiteralOne(term))) {
+          // Identity Law
+          uniqueTerms.removeAt(i--);
+        }
+      } else {
+        if (uniqueTerms.length > 1 &&
+            (term == LiteralTerm.zero || isJoinedTermIsLiteralZero(term))) {
+          // Identity Law
+          uniqueTerms.removeAt(i--);
+        } else if (term == LiteralTerm.one || isJoinedTermAndLiteralOne(term)) {
+          // One Element
+          return {LiteralTerm.one};
+        }
+      }
+
+      for (int j = i + 1; j < uniqueTerms.length; j++) {
+        Term compare = uniqueTerms[j];
+        if (compare.negate() == term) {
+          if (rootIsConjunction) {
+            return {LiteralTerm.zero};
+          } else {
+            return {LiteralTerm.one};
+          }
+        }
+      }
+    }
+
+    return uniqueTerms.toSet();
+  }
+
+  /// Sorts the terms in this joined term, including the nested joined terms, by
+  /// a given comparator. <br/>
+  /// For example, calling
+  /// ```
+  /// joinedTerm.sort((a, b) => a.postulate.compareTo(b.postulate))
+  /// ```
+  /// where `joinedTerm` is `B + C + A`, will sort this term to produce a new
+  /// joined term of `A + B + C` in alphabetical order of postulates
+  JoinedTerm sort(Comparator<Term> comparator) {
+    List<Term> terms = [];
+    for (Term term in _terms) {
+      if (term is LiteralTerm) {
+        terms.add(term);
+      } else {
+        terms.add((term as JoinedTerm).sort(comparator));
+      }
+    }
+    terms.sort(comparator);
+    return JoinedTerm(isConjunction: _isConjunction, terms: terms);
+  }
+
+  @override
+  Iterable<LiteralTerm> getUniqueTerms() {
+    Set<LiteralTerm> collected = {};
+
+    for (Term term in enclosedTerms) {
+      if (term is LiteralTerm) {
+        if (!collected.contains(term.negate())) {
+          collected.add(term.postulate.last() == "'" ? term.negate() : term);
+        }
+      } else {
+        for (term in term.getUniqueTerms()) {
+          if (!collected.contains(term.negate())) {
+            collected.add(term);
+          }
+        }
+      }
+    }
+    return collected;
+  }
 
   // Simplifies the terms using Quine-McCluskey
   @override
   JoinedTerm simplify() {
     log(toDisjunctiveNormalForm().joinedTerm.toString());
+
     Iterable<Implicant> minterms = toDisjunctiveNormalForm().getMinterms();
+
     log(minterms.toList().toString());
     Iterable<Implicant> primeImplicants = quine_mccluskey.compute(minterms);
 
@@ -103,17 +145,31 @@ class JoinedTerm extends Term {
           isConjunction: true, terms: primeImplicants.first.terms);
     } else {
       // for every PI, if the PI covers only 1 term, then it is disjunct by
-      // only that term. If it covers many terms, then it is dijunct by the
+      // only that term. If it covers many terms, then it is disjunct by the
       // conjunction of the terms covered
-      return JoinedTerm(
-          isConjunction: false,
-          terms: primeImplicants.map((e) => e.terms.length == 1
+      List<Term> terms = primeImplicants
+          .map((e) => e.terms.length == 1
               ? e.terms.first
-              : JoinedTerm(isConjunction: true, terms: e.terms)));
+              : JoinedTerm(isConjunction: true, terms: e.terms))
+          .toList();
+
+      return JoinedTerm(isConjunction: false, terms: terms);
     }
   }
 
+  @override
   DisjunctiveNormalForm toDisjunctiveNormalForm() {
+    return _toNormalForm(isConjunctive: false) as DisjunctiveNormalForm;
+  }
+
+  @override
+  ConjunctiveNormalForm toConjunctiveNormalForm() {
+    return _toNormalForm(isConjunctive: true) as ConjunctiveNormalForm;
+  }
+
+  NormalForm _toNormalForm({required bool isConjunctive}) {
+    // the phrase "if disjunctive" refers to this boolean `isDisjunctive`
+
     bool isConjunction = _isConjunction;
     List<Term> currentTree = enclosedTerms.toList();
 
@@ -124,7 +180,8 @@ class JoinedTerm extends Term {
         continue;
       }
       // Step 1: Recursively apply the operation to subtrees
-      JoinedTerm newSubTree = term.toDisjunctiveNormalForm().joinedTerm;
+      JoinedTerm newSubTree =
+          term._toNormalForm(isConjunctive: isConjunctive).joinedTerm;
       currentTree[i] = newSubTree;
 
       // Step 2: Flatten subtrees if same operators
@@ -135,19 +192,36 @@ class JoinedTerm extends Term {
       }
     }
 
-    // If main tree is disjunction, the tree is sufficiently flattened
-    if (!isConjunction) {
-      return _DisjunctiveNormalForm(
-          JoinedTerm(isConjunction: false, terms: currentTree));
+    currentTree = currentTree.map((e) {
+      if (e is JoinedTerm && e._terms.length == 1) {
+        return e._terms.first;
+      } else {
+        return e;
+      }
+    }).toList();
+
+    // If main tree is the required disjunction/conjunction, the tree is
+    // sufficiently flattened
+    if (isConjunction == isConjunctive) {
+      if (isConjunctive) {
+        return _ConjunctiveNormalForm(
+            JoinedTerm(isConjunction: true, terms: currentTree));
+      } else {
+        return _DisjunctiveNormalForm(
+            JoinedTerm(isConjunction: false, terms: currentTree));
+      }
     }
 
-    // Distribute the disjunctions terms until the main branch stops mutating
+    // Distribute the disjunctions (if disjunctive) or conjunctions (if conjunctive)
+    // terms until the main branch stops mutating
     for (int i = 0; i < currentTree.length; i++) {
       Term subtree = currentTree[i];
-      // At this point, the root node is a conjunction
-      // Subtree roots must either be literal terms, or disjunctions
-      // Conjunctions won't exist as they've been flattened
+      // At this point, the root node is a conjunction (if disjunctive) or
+      // disjunction (if conjunctive)
+      // Subtree roots must either be literal terms, or disjunctions (if disjunctive)
+      // Conjunctions (if disjunctive) won't exist as they've been flattened
       if (subtree is! JoinedTerm) {
+        // continue until a Joined Term is found and mutate this tree/subtree
         continue;
       }
 
@@ -159,20 +233,24 @@ class JoinedTerm extends Term {
                 [child] +
                 currentTree.sublist(i + 1)));
       }
+
       JoinedTerm mutatedTerms =
-          JoinedTerm(isConjunction: false, terms: mutatedTree)
-              .toDisjunctiveNormalForm()
+          JoinedTerm(isConjunction: isConjunctive, terms: mutatedTree)
+              ._toNormalForm(isConjunctive: isConjunctive)
               .joinedTerm;
       currentTree = mutatedTerms.enclosedTerms.toList();
-      isConjunction = false;
+
+      // set isConjunction to false if disjunctive and true if conjunctive
+      isConjunction = isConjunctive;
       break;
     }
 
-    // At this point, the main root must be a disjunction
-    // Compress subtree roots of disjunctions with the main root
+    // At this point, the main root must be a disjunction (if disjunctive) /
+    // conjunction (if conjunctive)
+    // Compress subtree roots of disjunctions/conjunctions with the main root
     for (int i = 0; i < currentTree.length; i++) {
       Term child = currentTree[i];
-      if (child is! JoinedTerm || child._isConjunction) {
+      if (child is! JoinedTerm || child._isConjunction != isConjunction) {
         continue;
       }
 
@@ -181,14 +259,19 @@ class JoinedTerm extends Term {
       i += child.enclosedTerms.length - 1;
     }
 
-    return _DisjunctiveNormalForm(
-        JoinedTerm(isConjunction: isConjunction, terms: currentTree));
+    if (isConjunctive) {
+      return _ConjunctiveNormalForm(
+          JoinedTerm(isConjunction: isConjunction, terms: currentTree));
+    } else {
+      return _DisjunctiveNormalForm(
+          JoinedTerm(isConjunction: isConjunction, terms: currentTree));
+    }
   }
 
-  // Describes this term as a statement
+  /// Describes this term as a statement
   @override
-  String get statement => enclosedTerms
-      .map((e) => e is JoinedTerm ? "(${e.statement})" : e.statement)
+  String get postulate => enclosedTerms
+      .map((e) => e is JoinedTerm ? "(${e.postulate})" : e.postulate)
       .join(_isConjunction ? " · " : " + ");
 
   /// Applies DeMorgan's Law to the present list of terms to perform negation
@@ -199,7 +282,15 @@ class JoinedTerm extends Term {
 
   @override
   String toString() =>
-      "${isConjunction ? "Conjunction" : "Disjunction"} | $statement";
+      "${isConjunction ? "Conjunction" : "Disjunction"} | $postulate";
+}
+
+class _ConjunctiveNormalForm extends ConjunctiveNormalForm {
+  final JoinedTerm _joinedTerm;
+  @override
+  JoinedTerm get joinedTerm => _joinedTerm;
+
+  _ConjunctiveNormalForm(this._joinedTerm);
 }
 
 class _DisjunctiveNormalForm extends DisjunctiveNormalForm {

@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-enum ExpressionForm { sumOfProducts, booleanExpression }
+enum ExpressionForm { algebraic, minterms, maxterms }
 
 extension ExpressionFormName on ExpressionForm {
   String get name => describeEnum(this).replaceAllMapped(

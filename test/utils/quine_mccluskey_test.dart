@@ -143,4 +143,73 @@ void main() {
       })
     });
   });
+
+  test(
+      "Given (A' · B) + (A · B') + (A · B), when computed with Quine-McCluskey, then produces the essential prime implicants (A) + (B)",
+      () async {
+    // ARRANGE
+    Implicant notAB = Implicant.create({
+      termA: BinaryValue.binaryZero, // 0
+      termB: BinaryValue.binaryOne, // 1
+    });
+
+    Implicant aNotB = Implicant.create({
+      termA: BinaryValue.binaryOne, // 1
+      termB: BinaryValue.binaryZero, // 0
+    });
+
+    Implicant aB = Implicant.create({
+      termA: BinaryValue.binaryOne, // 1
+      termB: BinaryValue.binaryOne, // 1
+    });
+
+    // ACT
+    Iterable<Implicant> result = quine_mccluskey.compute([notAB, aNotB, aB]);
+    // ASSERT
+    expect(result.toSet(), {
+      Implicant.create(
+          {termA: BinaryValue.binaryOne, termB: BinaryValue.redundant}),
+      Implicant.create(
+          {termA: BinaryValue.redundant, termB: BinaryValue.binaryOne})
+    });
+  });
+
+  test(
+      "Given minterms of ABCD 3, 5, 7, 9, 11, 13, 15 when computed with Quine-McCluskey, then produces the essential prime implicants A · B",
+      () async {
+    // ARRANGE
+
+    // ACT
+    Iterable<Implicant> result = quine_mccluskey.compute([
+      abcdMintermThree,
+      abcdMintermFive,
+      abcdMintermSeven,
+      abcdMintermNine,
+      abcdMintermEleven,
+      abcdMintermThirteen,
+      abcdMintermFifteen
+    ]);
+
+    // ASSERT
+    expect(result.toSet(), {
+      Implicant.create({
+        termA: BinaryValue.binaryOne,
+        termB: BinaryValue.redundant,
+        termC: BinaryValue.redundant,
+        termD: BinaryValue.binaryOne
+      }),
+      Implicant.create({
+        termA: BinaryValue.redundant,
+        termB: BinaryValue.binaryOne,
+        termC: BinaryValue.redundant,
+        termD: BinaryValue.binaryOne
+      }),
+      Implicant.create({
+        termA: BinaryValue.redundant,
+        termB: BinaryValue.redundant,
+        termC: BinaryValue.binaryOne,
+        termD: BinaryValue.binaryOne
+      })
+    });
+  });
 }
