@@ -11,34 +11,7 @@ import '../../presets/preset_terms.dart';
 
 void main() {
   test(
-      'Given an answer generated from A · B · C, when finding maxterms, '
-      'then produces 001 to 111 of ABC ', () async {
-    // ARRANGE
-    Term terms = termA.conjunction(termB, termC);
-    Answer answer = Answer(
-        disjunctiveNormalForm: terms.toDisjunctiveNormalForm(),
-        conjunctiveNormalForm: terms.toConjunctiveNormalForm(),
-        simplestForm: terms);
-
-    // ACT
-    Iterable<Iterable<String>> mintermsABC =
-        answer.maxtermTableValues(["A", "B", "C"]);
-
-    // ASSERT
-    expect(mintermsABC, [
-      ["0", "0", "1"],
-      ["0", "1", "0"],
-      ["0", "1", "1"],
-      ["1", "0", "0"],
-      ["1", "0", "1"],
-      ["1", "1", "0"],
-      ["1", "1", "1"],
-    ]);
-  });
-
-  test(
-      'Given an answer generated from A · B · C, when finding minterms with ABCD, '
-      'then throws a KeyNotFoundException as D does not exist in the answer ',
+      "Given an answer generated from A · B · C, when setting the headers to A, B and C, then retrieves the same headers A, B and C in terms",
       () async {
     // ARRANGE
     Term terms = termA.conjunction(termB, termC);
@@ -48,18 +21,40 @@ void main() {
         simplestForm: terms);
 
     // ACT
+    List<String> headers = ["A", "B", "C"];
+    answer = answer.withHeaders(headers);
 
     // ASSERT
     expect(
-      () => answer.mintermTableValues(["A", "B", "C", "D"]),
-      throwsA(KeyNotFoundException(
-          keyDoesNotExistInMap.format(["D", "headerStringToTermsMap"]))),
+      answer.headers,
+      [termA, termB, termC],
     );
   });
 
   test(
-      "Given an answer generated from A · B, when getting the minterms with A' and B, then retrieves [0, 1]",
-      () async {
+      'Given an answer generated from A · B · C, when setting the headers to A, B and C, '
+      'then retreives the same headers A, B and C in terms', () async {
+    // ARRANGE
+    Term terms = termA.conjunction(termB, termC);
+    Answer answer = Answer(
+        disjunctiveNormalForm: terms.toDisjunctiveNormalForm(),
+        conjunctiveNormalForm: terms.toConjunctiveNormalForm(),
+        simplestForm: terms);
+
+    // ACT
+    List<String> headers = ["A'", "B", "C"];
+    answer = answer.withHeaders(headers);
+
+    // ASSERT
+    expect(
+      answer.headers,
+      [termNotA, termB, termC],
+    );
+  });
+
+  test(
+      "Given an answer generated from A · B, when setting the headers to A' and B "
+      "and getting the minterms, then retrieves [0, 1]", () async {
     // ARRANGE
     Term terms = termA.conjunction(termB);
     Answer answer = Answer(
@@ -68,10 +63,12 @@ void main() {
         simplestForm: terms);
 
     // ACT
+    List<String> headers = ["A'", "B"];
+    answer = answer.withHeaders(headers);
 
     // ASSERT
     expect(
-      answer.mintermTableValues(["A'", "B"]),
+      answer.mintermTableValues(),
       [
         ["0", "1"],
       ],

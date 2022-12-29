@@ -32,7 +32,8 @@ class _AlgebraicExpressionTextFieldState
     super.initState();
     _focusNode.addListener(() {
       if (!_focusNode.hasFocus) {
-        widget.model.replace(algebraicExpression: _textController.text);
+        widget.model.combinationalSolverState.algebraicExpression =
+            _textController.text;
       }
     });
   }

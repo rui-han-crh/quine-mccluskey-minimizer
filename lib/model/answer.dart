@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:proof_map/app_object.dart';
 import 'package:proof_map/exceptions/key_not_found_exception.dart';
 import 'package:proof_map/extensions/string_extension.dart';
@@ -34,18 +36,15 @@ class Answer extends AppObject {
       return [];
     }
 
-    List<LiteralTerm> headerTermsOrder = headers.toList();
-    if (headerValues != null) {
-      headerTermsOrder = [];
-      for (String value in headerValues) {
-        if (!_headerStringToTermsMap.containsKey(value)) {
-          throw KeyNotFoundException(
-              keyDoesNotExistInMap.format([value, "headerStringToTermsMap"]));
-        }
-
-        headerTermsOrder.add(_headerStringToTermsMap[value]!);
-      }
-    }
+    List<LiteralTerm> headerTermsOrder = headerValues == null
+        ? headers.toList()
+        : [
+            for (String value in headerValues)
+              _headerStringToTermsMap.containsKey(value)
+                  ? _headerStringToTermsMap[value]!
+                  : throw KeyNotFoundException(keyDoesNotExistInMap
+                      .format([value, "headerStringToTermsMap"]))
+          ];
 
     List<Implicant> implicants = _disjunctiveNormalForm!
         .getMinterms(headerTermsOrder)
@@ -62,18 +61,15 @@ class Answer extends AppObject {
       return [];
     }
 
-    List<LiteralTerm> headerTermsOrder = headers.toList();
-    if (headerValues != null) {
-      headerTermsOrder = [];
-      for (String value in headerValues) {
-        if (!_headerStringToTermsMap.containsKey(value)) {
-          throw KeyNotFoundException(
-              keyDoesNotExistInMap.format([value, "headerStringToTermsMap"]));
-        }
-
-        headerTermsOrder.add(_headerStringToTermsMap[value]!);
-      }
-    }
+    List<LiteralTerm> headerTermsOrder = headerValues == null
+        ? headers.toList()
+        : [
+            for (String value in headerValues)
+              _headerStringToTermsMap.containsKey(value)
+                  ? _headerStringToTermsMap[value]!
+                  : throw KeyNotFoundException(keyDoesNotExistInMap
+                      .format([value, "headerStringToTermsMap"]))
+          ];
 
     List<Implicant> implicants = _conjunctiveNormalForm!
         .getMaxterms(headerTermsOrder)
@@ -82,6 +78,48 @@ class Answer extends AppObject {
 
     return implicants
         .map((e) => e.binaryRepresentation.map((e) => e.representation));
+  }
+
+  /// Retrieves the essential prime implicants corresponding to the largest
+  /// groups of minterms in the sum of products
+  Iterable<Implicant> getMintermEssentialPrimeImplicants(
+      [Iterable<String>? headerValues]) {
+    if (_disjunctiveNormalForm == null) {
+      return [];
+    }
+
+    List<LiteralTerm> headerTermsOrder = headerValues == null
+        ? headers.toList()
+        : verifyHeaderTermsOrder(headerValues);
+
+    return _disjunctiveNormalForm!
+        .getEssentialPrimeImplicants(headerTermsOrder);
+  }
+
+  // Retrieves the essential prime implicants corresponding to the largest
+  // groups of maxterms in the product of sums
+  Iterable<Implicant> getMaxtermEssentialPrimeImplicants(
+      [Iterable<String>? headerValues]) {
+    if (_conjunctiveNormalForm == null) {
+      return [];
+    }
+
+    List<LiteralTerm> headerTermsOrder = headerValues == null
+        ? headers.toList()
+        : verifyHeaderTermsOrder(headerValues);
+
+    return _conjunctiveNormalForm!
+        .getEssentialPrimeImplicants(headerTermsOrder);
+  }
+
+  List<LiteralTerm> verifyHeaderTermsOrder(Iterable<String> headerValues) {
+    return [
+      for (String value in headerValues)
+        _headerStringToTermsMap.containsKey(value)
+            ? _headerStringToTermsMap[value]!
+            : throw KeyNotFoundException(
+                keyDoesNotExistInMap.format([value, "headerStringToTermsMap"]))
+    ];
   }
 
   Answer(

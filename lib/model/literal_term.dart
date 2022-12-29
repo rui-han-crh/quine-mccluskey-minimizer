@@ -70,6 +70,11 @@ class _ConjunctiveNormalForm extends ConjunctiveNormalForm {
   JoinedTerm get joinedTerm => JoinedTerm(isConjunction: false, terms: [term]);
 
   _ConjunctiveNormalForm(this.term);
+
+  @override
+  ConjunctiveNormalForm simplify() {
+    return this;
+  }
 }
 
 class _DisjunctiveNormalForm extends DisjunctiveNormalForm {
@@ -78,4 +83,9 @@ class _DisjunctiveNormalForm extends DisjunctiveNormalForm {
   JoinedTerm get joinedTerm => JoinedTerm(isConjunction: false, terms: [term]);
 
   _DisjunctiveNormalForm(this.term);
+
+  @override
+  DisjunctiveNormalForm simplify() {
+    return this;
+  }
 }

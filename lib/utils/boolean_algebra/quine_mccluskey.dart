@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:proof_map/utils/boolean_algebra/binary_value.dart';
+import 'package:proof_map/utils/greedy_set_cover.dart';
 import 'package:proof_map/utils/linear_programming/expression.dart';
 import 'package:proof_map/utils/linear_programming/expression_relation.dart';
 import 'package:proof_map/model/implicant.dart';
@@ -13,9 +14,6 @@ Iterable<Implicant> compute(Iterable<Implicant> startingMinterms) {
   // create a collection of groups, index + 1 corresponding to the number of 1s
   // in the minterm
   // -> groups[0] is for implicants with 1 1s, groups[1] is for 2 1s, etc
-  for (Implicant im in startingMinterms) {
-    log(im.toString());
-  }
 
   List<List<Pair<Implicant, bool>>> groups = List.generate(
       startingMinterms.first.binaryRepresentation.length + 1, (_) => []);
@@ -68,9 +66,39 @@ Iterable<Implicant> compute(Iterable<Implicant> startingMinterms) {
   List<Implicant> primeImplicants =
       groups.expand((e) => e).map((e) => e.item1).toList();
 
-  Map<int, List<double>> coefficients = {};
+  // use Petricks' algorithm to find the essential prime implicants
+  Map<int, List<Implicant>> piChart = {};
+  for (Implicant implicant in primeImplicants) {
+    for (int minterm in implicant.coveredMintermIndices) {
+      if (!piChart.containsKey(minterm)) {
+        piChart[minterm] = [implicant];
+      } else {
+        piChart[minterm]!.add(implicant);
+      }
+    }
+  }
+
+  Set<Implicant> essentialPrimeImplicants = {};
+  Set<Implicant> remainingPrimeImplicants = {};
+  for (int minterm in piChart.keys) {
+    if (piChart[minterm]!.length == 1) {
+      essentialPrimeImplicants.add(piChart[minterm]!.first);
+    } else {
+      remainingPrimeImplicants.addAll(piChart[minterm]!);
+    }
+  }
+
+  // return the essential PIs if all minterms are covered
+  if (remainingPrimeImplicants.isEmpty) {
+    return essentialPrimeImplicants;
+  }
+
+  // dead code, but kept for future reference
+  primeImplicants = remainingPrimeImplicants.toList();
 
   // construct the linear programming expression
+  Map<int, List<double>> coefficients = {};
+
   for (int i = 0; i < primeImplicants.length; i++) {
     for (int minterm in primeImplicants[i].coveredMintermIndices) {
       if (!coefficients.containsKey(minterm)) {
@@ -83,17 +111,30 @@ Iterable<Implicant> compute(Iterable<Implicant> startingMinterms) {
     }
   }
 
-  // find EPIs with set cover using binary integer linear programming
-  List<int> result = bin_ilp.binaryMinimize(coefficients.values
-      .map((e) => Expression(e, ExpressionRelation.greaterThanOrEqualsTo, 1))
-      .toList());
+  List<int> result;
+  try {
+    // find EPIs with set cover using binary integer linear programming
+    result = bin_ilp.binaryMinimize(coefficients.values
+        .map((e) => Expression(e, ExpressionRelation.greaterThanOrEqualsTo, 1))
+        .toList());
+  } catch (e) {
+    Map<Set<int>, Implicant> remainingPrimeImplicantsMap = {
+      for (Implicant implicant in remainingPrimeImplicants)
+        implicant.coveredMintermIndices.toSet(): implicant
+    };
+
+    return setCoverApproximation(remainingPrimeImplicantsMap.keys)
+        .map((e) => remainingPrimeImplicantsMap[e]!)
+        .followedBy(essentialPrimeImplicants);
+  }
 
   // returns a list, each index corresponding to a term and its value being
   // the coefficent. [0, 1, 0, 1, 1] -> x2 + x4 + x5
 
-  return List.generate(result.length, (i) => i)
-      .where((i) => result[i] > 0)
-      .map((i) => primeImplicants[i]);
+  return essentialPrimeImplicants
+    ..addAll(List.generate(result.length, (i) => i)
+        .where((i) => result[i] > 0)
+        .map((i) => primeImplicants[i]));
 }
 
 bool _isGreyCode(Implicant a, Implicant b) {
@@ -118,7 +159,7 @@ Implicant _expandImplicant(Implicant a, Implicant b) {
   Map<LiteralTerm, BinaryValue> newTermMap = {};
   for (int i = 0; i < binaryA.length; i++) {
     newTermMap[terms[i]] =
-        binaryA[i] == binaryB[i] ? binaryA[i] : BinaryValue.redundant;
+        binaryA[i] == binaryB[i] ? binaryA[i] : BinaryValue.dontCare;
   }
   return Implicant.create(newTermMap);
 }

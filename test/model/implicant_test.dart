@@ -15,10 +15,10 @@ void main() {
 
     // Act
     Implicant minterm = Implicant.create(LinkedHashMap.from({
-      termA: BinaryValue.binaryOne,
-      termB: BinaryValue.binaryOne,
-      termC: BinaryValue.binaryOne,
-      termD: BinaryValue.binaryZero
+      termA: BinaryValue.one,
+      termB: BinaryValue.one,
+      termC: BinaryValue.one,
+      termD: BinaryValue.zero
     }));
 
     // Assert
@@ -32,10 +32,10 @@ void main() {
 
     // Act
     Implicant minterm = Implicant.create(LinkedHashMap.from({
-      termA: BinaryValue.binaryZero,
-      termB: BinaryValue.binaryZero,
-      termC: BinaryValue.binaryZero,
-      termD: BinaryValue.binaryZero
+      termA: BinaryValue.zero,
+      termB: BinaryValue.zero,
+      termC: BinaryValue.zero,
+      termD: BinaryValue.zero
     }));
 
     // Assert
@@ -49,10 +49,10 @@ void main() {
 
     // Act
     Implicant minterm = Implicant.create(LinkedHashMap.from({
-      termNotA: BinaryValue.binaryZero,
-      termNotB: BinaryValue.binaryOne,
-      termNotC: BinaryValue.binaryZero,
-      termNotD: BinaryValue.binaryZero
+      termNotA: BinaryValue.zero,
+      termNotB: BinaryValue.one,
+      termNotC: BinaryValue.zero,
+      termNotD: BinaryValue.zero
     }));
 
     // Assert
@@ -66,11 +66,11 @@ void main() {
 
     // Act
     Implicant minterm = Implicant.create(LinkedHashMap.from({
-      termA: BinaryValue.redundant,
-      termB: BinaryValue.redundant,
-      termC: BinaryValue.redundant,
-      termNotD: BinaryValue.redundant,
-      termE: BinaryValue.binaryOne,
+      termA: BinaryValue.dontCare,
+      termB: BinaryValue.dontCare,
+      termC: BinaryValue.dontCare,
+      termNotD: BinaryValue.dontCare,
+      termE: BinaryValue.one,
     }));
 
     // Assert
@@ -84,8 +84,8 @@ void main() {
 
     // Act
     Implicant minterm = Implicant.create(LinkedHashMap.from({
-      termA: BinaryValue.redundant,
-      termB: BinaryValue.redundant,
+      termA: BinaryValue.dontCare,
+      termB: BinaryValue.dontCare,
     }));
 
     // Assert

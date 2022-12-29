@@ -3,7 +3,7 @@ import 'package:proof_map/model/joined_term.dart';
 import 'package:proof_map/model/parser.dart';
 import 'package:proof_map/model/term.dart';
 
-import '../presets/preset_terms.dart';
+import '../../presets/preset_terms.dart';
 
 void main() {
   test(

@@ -4,6 +4,8 @@ import 'package:proof_map/utils/linear_programming/expression.dart';
 import 'package:proof_map/utils/linear_programming/expression_relation.dart';
 import 'package:proof_map/utils/messages.dart';
 
+const double bigM = 1.3407807929942596e+200;
+
 /// Minimizes the objective function according to the functions provided in the
 /// constraint function. <br>
 /// The coefficients of all variables must be supplied, even if it is not
@@ -18,7 +20,8 @@ import 'package:proof_map/utils/messages.dart';
 /// such that x1, x2, x3 take values of either 0 or 1. <br><br>
 /// The participating variables will be automatically upper bounded by 1 to
 /// find results in the domain [0, 1].
-List<int> binaryMinimize(List<Expression> constraintFunctions) {
+List<int> binaryMinimize(List<Expression> constraintFunctions,
+    [maximumTableauIterations = 100000]) {
   int numberOfVariables = constraintFunctions[0].coefficients.length;
 
   // Adds the upper bound of zero to all variables (E.g. x0 <= 1, x1 <= 1, etc)
@@ -28,7 +31,8 @@ List<int> binaryMinimize(List<Expression> constraintFunctions) {
     constraintFunctions
         .add(Expression(upperBound, ExpressionRelation.lessThanOrEqualsTo, 1));
   }
-  return minimize(List.filled(numberOfVariables, 1), constraintFunctions)
+  return minimize(List.filled(numberOfVariables, 1), constraintFunctions,
+          maximumTableauIterations)
       .map((e) => e.round())
       .toList();
 }
@@ -45,7 +49,8 @@ List<int> binaryMinimize(List<Expression> constraintFunctions) {
 /// This corresponds to a linear programming calculation minimizing x1 + x2 + x3,
 /// subject to constraints x1 >= 1 and x1 + x2 >= 1
 List<double> minimize(List<double> objectiveFunctionCoefficients,
-    List<Expression> constraintFunctions) {
+    List<Expression> constraintFunctions,
+    [maximumTableauIterations = 10000]) {
   int numberOfVariables = constraintFunctions[0].coefficients.length;
   int numberOfSlackVariables = 0;
   int numberOfArtificialVariables = 0;
@@ -69,6 +74,8 @@ List<double> minimize(List<double> objectiveFunctionCoefficients,
       numberOfSlackVariables +
       numberOfArtificialVariables +
       1;
+
+  log("Number of variables: $numberOfVariables, Number of Slack Variables: $numberOfSlackVariables, Number of Artificial Variables: $numberOfArtificialVariables, Number of Rows: $numberOfRows, Number of Columns: $numberOfColumns");
 
   List<List<double>> matrix =
       List.generate(numberOfRows, (_) => List.filled(numberOfColumns, 0));
@@ -103,7 +110,7 @@ List<double> minimize(List<double> objectiveFunctionCoefficients,
   }
 
   objectiveFunctionCoefficients += List.filled(numberOfSlackVariables, 0.0) +
-      List.filled(numberOfArtificialVariables, 100.0);
+      List.filled(numberOfArtificialVariables, bigM);
 
   // number of elements in b is the number of constraints
   List<double> b = List.generate(constraintFunctions.length, (_) => 0);
@@ -126,11 +133,12 @@ List<double> minimize(List<double> objectiveFunctionCoefficients,
       bVar[lastJIndex] = i;
     }
   }
-  log(b.toString());
-  log(bVar.toString());
-  assert(bVar.where((e) => e == -1).isEmpty);
 
-  while (true) {
+  assert(bVar.where((e) => e == -1).isEmpty);
+  int maxLimit = maximumTableauIterations;
+  while (maxLimit > 0) {
+    maxLimit--;
+
     // select pivot column
     int maximumColumn = 0;
     double maximumColumnValue = 0;
@@ -221,6 +229,11 @@ List<double> minimize(List<double> objectiveFunctionCoefficients,
       continue; // throw away slack and artificial results
     }
     result[bVar[i]] = matrix[i].last;
+  }
+  //log(b.toString());
+  //log(bVar.toString());
+  if (maxLimit == 0) {
+    throw Exception("Maximum iterations reached");
   }
 
   log(result.toString());

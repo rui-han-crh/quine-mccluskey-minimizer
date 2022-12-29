@@ -27,13 +27,13 @@ class Implicant extends AppObject with EquatableMixin {
   /// For example, implicant 1000 of ABCD has terms A, B', C', D'
   List<LiteralTerm> get terms {
     Iterable<MapEntry<LiteralTerm, BinaryValue>> entries =
-        _terms.entries.where((e) => e.value != BinaryValue.redundant);
+        _terms.entries.where((e) => e.value != BinaryValue.dontCare);
 
     if (entries.isEmpty) {
       return [LiteralTerm.one];
     }
     return entries
-        .map((e) => (e.value == BinaryValue.binaryOne) ? e.key : e.key.negate())
+        .map((e) => (e.value == BinaryValue.one) ? e.key : e.key.negate())
         .toList();
   }
 
@@ -56,9 +56,9 @@ class Implicant extends AppObject with EquatableMixin {
 
     List<int> next = _findIndices(binary, i + 1);
 
-    if (binary[i] == BinaryValue.binaryOne) {
+    if (binary[i] == BinaryValue.one) {
       return next.map((e) => e + (1 << binary.length - 1 - i)).toList();
-    } else if (binary[i] == BinaryValue.binaryZero) {
+    } else if (binary[i] == BinaryValue.zero) {
       return next;
     } else {
       return next.map((e) => e + (1 << binary.length - 1 - i)).toList() + next;
@@ -80,8 +80,7 @@ class Implicant extends AppObject with EquatableMixin {
   /// to minterm 1110 for variables ABCD
   Implicant.create(Map<LiteralTerm, BinaryValue> terms)
       : _terms = Map.of(terms),
-        _numberOfOnes =
-            terms.values.where((e) => e == BinaryValue.binaryOne).length,
+        _numberOfOnes = terms.values.where((e) => e == BinaryValue.one).length,
         _mintermIndices = _findIndices(terms.values.toList());
 
   Implicant()

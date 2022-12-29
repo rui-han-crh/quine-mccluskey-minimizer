@@ -1,7 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:proof_map/model/joined_term.dart';
+import 'package:proof_map/model/normal_form.dart';
 import 'package:proof_map/model/term.dart';
-import '../../presets/preset_terms.dart';
+
+import '../../../presets/preset_terms.dart';
 
 void main() {
   test(
@@ -16,10 +18,12 @@ void main() {
         JoinedTerm(isConjunction: false, terms: [left, middle, right]);
 
     // Act
-    JoinedTerm simplified = together.simplify();
+    DisjunctiveNormalForm simplified =
+        together.toDisjunctiveNormalForm().simplify();
 
     // Assert
-    expect(simplified, JoinedTerm(isConjunction: false, terms: [left, middle]));
+    expect(simplified.joinedTerm,
+        JoinedTerm(isConjunction: false, terms: [left, middle]));
   });
 
   test("Given (A · B), when simplified, then produces (A · B)", () async {
@@ -27,10 +31,11 @@ void main() {
     JoinedTerm term = termA.conjunction(termB);
 
     // Act
-    JoinedTerm simplified = term.simplify();
+    DisjunctiveNormalForm simplified =
+        term.toDisjunctiveNormalForm().simplify();
 
     // Assert
-    expect(simplified, term);
+    expect(simplified.joinedTerm, term);
   });
 
   test("Given (A + B), when simplified, then produces (A + B)", () async {
@@ -38,20 +43,23 @@ void main() {
     JoinedTerm term = termA.disjunction(termB);
 
     // Act
-    JoinedTerm simplified = term.simplify();
+    DisjunctiveNormalForm simplified =
+        term.toDisjunctiveNormalForm().simplify();
 
     // Assert
-    expect(simplified, term);
+    expect(simplified.joinedTerm, term);
   });
 
   test("Given A, when simplified, then produces A", () async {
     // Arrange
 
     // Act
-    Term simplified = termA.simplify();
+    DisjunctiveNormalForm simplified =
+        termA.toDisjunctiveNormalForm().simplify();
 
     // Assert
-    expect(simplified, termA);
+    expect(simplified.joinedTerm,
+        JoinedTerm(isConjunction: false, terms: [termA]));
   });
 
   test(
@@ -61,11 +69,12 @@ void main() {
     Term input = termA.disjunction(termB, termC).conjunction(termD);
 
     // ACT
-    Term simplified = input.simplify();
+    DisjunctiveNormalForm simplified =
+        input.toDisjunctiveNormalForm().simplify();
 
     // ASSERT
     expect(
-        simplified,
+        simplified.joinedTerm,
         JoinedTerm(isConjunction: false, terms: [
           JoinedTerm(isConjunction: true, terms: [termA, termD]),
           JoinedTerm(isConjunction: true, terms: [termB, termD]),
@@ -80,28 +89,11 @@ void main() {
     Term input = termA.disjunction(termB, termC, termD);
 
     // ACT
-    Term simplified = input.simplify();
+    DisjunctiveNormalForm simplified =
+        input.toDisjunctiveNormalForm().simplify();
 
     // ASSERT
-    expect(simplified,
+    expect(simplified.joinedTerm,
         JoinedTerm(isConjunction: false, terms: [termA, termB, termC, termD]));
-  });
-
-  test(
-      "Given A + B + D' + E + C', when simplified and negated, then correctly produces JoinedTerm A' · B' · C · D · E'",
-      () async {
-    // ARRANGE
-    Term input = JoinedTerm(isConjunction: false, terms: [
-      termA,
-      JoinedTerm(isConjunction: true, terms: [termB, termC]),
-      termNotD,
-      JoinedTerm(isConjunction: false, terms: [termE, termNotC])
-    ]);
-
-    // ACT
-    Term simplified = input.simplify().negate();
-
-    // ASSERT
-    expect(simplified, termNotA.conjunction(termNotB, termC, termD, termNotE));
   });
 }

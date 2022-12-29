@@ -149,11 +149,11 @@ void main() {
         expression.getMinterms(
           {termA, termB, termC, termD, termE},
         ).contains(Implicant.create({
-          termA: BinaryValue.binaryZero,
-          termB: BinaryValue.binaryZero,
-          termC: BinaryValue.binaryOne,
-          termD: BinaryValue.binaryOne,
-          termE: BinaryValue.binaryZero
+          termA: BinaryValue.zero,
+          termB: BinaryValue.zero,
+          termC: BinaryValue.one,
+          termD: BinaryValue.one,
+          termE: BinaryValue.zero
         })),
         false);
   });

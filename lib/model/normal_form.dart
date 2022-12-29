@@ -17,7 +17,7 @@ import '../utils/messages.dart';
 /// A + B + (A · C) + (B · D) + D
 /// ```
 abstract class DisjunctiveNormalForm extends NormalForm {
-  /// Retrieves the complete set of minterms from this disjunctive normal form <br>
+  /// Retrieves the complete set of minterms from this [DisjunctiveNormalForm] <br>
   /// Optionally, pass in an order of all variables that the minterms will be
   /// generated in. If no order is given, the minterms will be recorded in order
   /// of variables seen. <br>
@@ -28,6 +28,19 @@ abstract class DisjunctiveNormalForm extends NormalForm {
       [Iterable<LiteralTerm> orderedVariables = const {}]) {
     return super._getMinOrMaxTerms(true, orderedVariables);
   }
+
+  /// Retrieves an iterable of essential prime implicants of this disjunctive
+  /// normal form <br>
+  Iterable<Implicant> getEssentialPrimeImplicants(
+      Iterable<LiteralTerm> headerValues) {
+    return super._getEssentialPrimeImplicants(
+        isSoleTerm: joinedTerm.isConjunction, headerTermsOrder: headerValues);
+  }
+
+  /// Simplifies this disjunctive normal form by removing redundant terms and
+  /// returns the simplest sum-of-products
+  @override
+  DisjunctiveNormalForm simplify();
 }
 
 /// Represents a level-2 joined term of first-level conjunctions </br>
@@ -38,7 +51,7 @@ abstract class DisjunctiveNormalForm extends NormalForm {
 /// A · B · (A + C) · (B + D) + D
 /// ```
 abstract class ConjunctiveNormalForm extends NormalForm {
-  /// Retrieves the complete set of minterms from this conjuctive normal form <br>
+  /// Retrieves the complete set of minterms from this [ConjunctiveNormalForm] <br>
   /// Optionally, pass in an order of all variables that the maxterms will be
   /// generated in. If no order is given, the maxterms will be recorded in order
   /// of variables seen. <br>
@@ -49,6 +62,19 @@ abstract class ConjunctiveNormalForm extends NormalForm {
       [Iterable<LiteralTerm> orderedVariables = const {}]) {
     return super._getMinOrMaxTerms(false, orderedVariables);
   }
+
+  /// Retrieves an iterable of essential prime implicants of this conjunctive
+  /// normal form <br>
+  Iterable<Implicant> getEssentialPrimeImplicants(
+      Iterable<LiteralTerm> headerValues) {
+    return super._getEssentialPrimeImplicants(
+        isSoleTerm: !joinedTerm.isConjunction, headerTermsOrder: headerValues);
+  }
+
+  /// Simplifies this conjunctive normal form by removing redundant terms and
+  /// returns the simplest product-of-sums
+  @override
+  ConjunctiveNormalForm simplify();
 }
 
 abstract class NormalForm extends AppObject {
@@ -59,6 +85,64 @@ abstract class NormalForm extends AppObject {
   /// Returns the underlying terms that make up this disjunctive normal form
   JoinedTerm get joinedTerm;
 
+  /// Simplifies this normal form
+  NormalForm simplify();
+
+  /// Finds all the essential prime implicants of this normal form
+  Iterable<Implicant> _getEssentialPrimeImplicants(
+      {required bool isSoleTerm,
+      required Iterable<LiteralTerm> headerTermsOrder}) {
+    if (isSoleTerm) {
+      // the entire enclosed term is 1 prime implicant
+      return [
+        Implicant.create(
+          Map.fromIterable(
+            headerTermsOrder,
+            key: (e) => e,
+            value: (e) {
+              e = e as LiteralTerm;
+              return joinedTerm.enclosedTerms.contains(e)
+                  ? BinaryValue.one
+                  : joinedTerm.enclosedTerms.contains(e.negate())
+                      ? BinaryValue.zero
+                      : BinaryValue.dontCare;
+            },
+          ),
+        )
+      ];
+    } else {
+      // the collection of terms in this enclosed term contain many
+      // essential prime implicants
+      return joinedTerm.enclosedTerms.map(
+        (enclosedTerm) => enclosedTerm is JoinedTerm
+            ? Implicant.create(
+                Map.fromIterable(
+                  headerTermsOrder,
+                  key: (e) => e,
+                  value: (e) {
+                    e = e as LiteralTerm;
+                    return enclosedTerm.enclosedTerms.contains(e)
+                        ? BinaryValue.one
+                        : enclosedTerm.enclosedTerms.contains(e.negate())
+                            ? BinaryValue.zero
+                            : BinaryValue.dontCare;
+                  },
+                ),
+              )
+            : Implicant.create(
+                {
+                  for (LiteralTerm e in headerTermsOrder)
+                    e: e == enclosedTerm
+                        ? BinaryValue.one
+                        : e.negate() == enclosedTerm
+                            ? BinaryValue.zero
+                            : BinaryValue.dontCare
+                },
+              ),
+      );
+    }
+  }
+
   /// Retrieves the complete set of min or max terms from this normal form <br>
   /// Optionally, pass in an order of all variables that the min or max terms
   /// will be generated in. If no order is given, the minterms will be recorded
@@ -66,23 +150,35 @@ abstract class NormalForm extends AppObject {
   /// The Set preserves insertion order as a LinkedHashSet <br>
   Iterable<Implicant> _getMinOrMaxTerms(bool isMinterm,
       [Iterable<LiteralTerm> orderedVariables = const {}]) {
+    // Records the terms in order of seen
+    if (orderedVariables.isEmpty) {
+      orderedVariables = _getTermsOrder(joinedTerm, {});
+    } else {
+      orderedVariables = orderedVariables.toSet();
+    }
+
     if (joinedTerm.isConjunction == isMinterm) {
       // joinedTerm root is conjunction and requires minterms
       // -> joined term is the minterm
       // joinedTerm root is disjunction and requires maxterms
       // -> joined term is the maxterm
       return [
-        Implicant.create(Map.from({
-          for (Term t in joinedTerm.enclosedTerms) t: BinaryValue.binaryOne
-        }))
+        Implicant.create(
+          {
+            // for each variable, if it is in the joined term, it is a 1
+            // if it's negation is in the joined term, it is a 0
+            // if neither the variable nor its negation is in the joined term,
+            // an exception is thrown
+            for (var element in orderedVariables)
+              element: joinedTerm.enclosedTerms.contains(element)
+                  ? BinaryValue.one
+                  : joinedTerm.enclosedTerms.contains(element.negate())
+                      ? BinaryValue.zero
+                      : throw TermNotFoundException(
+                          termNotFoundMessage.format(element.toString()))
+          },
+        )
       ];
-    }
-
-    // Records the terms in order of seen
-    if (orderedVariables.isEmpty) {
-      orderedVariables = _getTermsOrder(joinedTerm, {});
-    } else {
-      orderedVariables = orderedVariables.toSet();
     }
 
     Set<Implicant> simplestImplicants = {};
@@ -151,8 +247,8 @@ abstract class NormalForm extends AppObject {
         Implicant.create(Map.from({
           for (LiteralTerm term in order)
             term: compulsorySet.contains(term)
-                ? BinaryValue.binaryOne
-                : BinaryValue.binaryZero
+                ? BinaryValue.one
+                : BinaryValue.zero
         }))
       ];
     }

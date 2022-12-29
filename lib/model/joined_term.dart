@@ -127,15 +127,24 @@ class JoinedTerm extends Term {
     return collected;
   }
 
-  // Simplifies the terms using Quine-McCluskey
+  /// Simplifies the terms using Quine-McCluskey and returns the result as a
+  /// joined term with the least number of repeated variables in the expression.
+  /// </br>
+  /// This is usually used for the ease of human readability.
   @override
-  JoinedTerm simplify() {
-    log(toDisjunctiveNormalForm().joinedTerm.toString());
+  JoinedTerm simplify([bool usingDisjunctiveNormal = true]) {
+    //log(toDisjunctiveNormalForm().joinedTerm.toString());
 
-    Iterable<Implicant> minterms = toDisjunctiveNormalForm().getMinterms();
+    Iterable<Implicant> smallestTerms;
+    if (usingDisjunctiveNormal) {
+      smallestTerms = toDisjunctiveNormalForm().getMinterms();
+    } else {
+      smallestTerms = toConjunctiveNormalForm().getMaxterms();
+    }
 
-    log(minterms.toList().toString());
-    Iterable<Implicant> primeImplicants = quine_mccluskey.compute(minterms);
+    //log(minterms.toList().toString());
+    Iterable<Implicant> primeImplicants =
+        quine_mccluskey.compute(smallestTerms);
 
     assert(primeImplicants.isNotEmpty);
 
@@ -285,18 +294,76 @@ class JoinedTerm extends Term {
       "${isConjunction ? "Conjunction" : "Disjunction"} | $postulate";
 }
 
+/// A conjunctive normal form is a conjunction of disjunctions of literals or
+/// a single term that is a disjunction of literals
 class _ConjunctiveNormalForm extends ConjunctiveNormalForm {
   final JoinedTerm _joinedTerm;
   @override
   JoinedTerm get joinedTerm => _joinedTerm;
 
   _ConjunctiveNormalForm(this._joinedTerm);
+
+  @override
+  ConjunctiveNormalForm simplify() {
+    Iterable<Implicant> maxterms = getMaxterms();
+
+    Iterable<Implicant> primeImplicants = quine_mccluskey.compute(maxterms);
+
+    assert(primeImplicants.isNotEmpty);
+
+    if (primeImplicants.length == 1) {
+      // if there is only 1 PI, then it is a disjunction of the maxterms
+      return _ConjunctiveNormalForm(
+          JoinedTerm(isConjunction: false, terms: primeImplicants.first.terms));
+    } else {
+      // for every PI, if the PI covers only 1 term, then it is disjunct by
+      // only that term. If it covers many terms, then it is conjunct by the
+      // disjunction of the terms covered
+      List<Term> terms = primeImplicants
+          .map((e) => e.terms.length == 1
+              ? e.terms.first
+              : JoinedTerm(isConjunction: false, terms: e.terms))
+          .toList();
+
+      return _ConjunctiveNormalForm(
+          JoinedTerm(isConjunction: true, terms: terms));
+    }
+  }
 }
 
+/// A disjunctive normal form is a disjunction of conjunctions of literals or
+/// a single term that is a conjunction of literals
 class _DisjunctiveNormalForm extends DisjunctiveNormalForm {
   final JoinedTerm _joinedTerm;
   @override
   JoinedTerm get joinedTerm => _joinedTerm;
 
   _DisjunctiveNormalForm(this._joinedTerm);
+
+  @override
+  DisjunctiveNormalForm simplify() {
+    Iterable<Implicant> minterms = getMinterms();
+
+    Iterable<Implicant> primeImplicants = quine_mccluskey.compute(minterms);
+
+    assert(primeImplicants.isNotEmpty);
+
+    if (primeImplicants.length == 1) {
+      // if there is only 1 PI, then it is a conjunction of the minterms
+      return _DisjunctiveNormalForm(
+          JoinedTerm(isConjunction: true, terms: primeImplicants.first.terms));
+    } else {
+      // for every PI, if the PI covers only 1 term, then it is disjunct by
+      // only that term. If it covers many terms, then it is disjunct by the
+      // conjunction of the terms covered
+      List<Term> terms = primeImplicants
+          .map((e) => e.terms.length == 1
+              ? e.terms.first
+              : JoinedTerm(isConjunction: true, terms: e.terms))
+          .toList();
+
+      return _DisjunctiveNormalForm(
+          JoinedTerm(isConjunction: false, terms: terms));
+    }
+  }
 }

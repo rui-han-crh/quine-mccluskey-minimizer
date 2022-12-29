@@ -4,12 +4,16 @@ class FoldOut extends StatefulWidget {
   final String title;
   final Widget child;
   final Duration duration;
+  final bool startAsFolded;
+  final void Function(bool)? onFold;
 
   const FoldOut({
     Key? key,
     required this.title,
     required this.child,
     required this.duration,
+    this.startAsFolded = true,
+    this.onFold,
   }) : super(key: key);
 
   @override
@@ -19,12 +23,13 @@ class FoldOut extends StatefulWidget {
 class _FoldOutState extends State<FoldOut> with TickerProviderStateMixin {
   late final AnimationController _controller;
   late Animation<double> _animation;
-  bool isFolded = true;
+  late bool isFolded = widget.startAsFolded;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this, duration: widget.duration);
+    _controller = AnimationController(
+        vsync: this, duration: widget.duration, value: isFolded ? 0.0 : 1.0);
     _animation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
   }
 
@@ -84,6 +89,7 @@ class _FoldOutState extends State<FoldOut> with TickerProviderStateMixin {
         _controller.reverse();
       }
       isFolded = !isFolded;
+      widget.onFold?.call(isFolded);
     });
   }
 }

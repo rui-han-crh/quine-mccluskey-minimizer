@@ -2,7 +2,7 @@ import 'package:proof_map/exceptions/invalid_argument_exception.dart';
 import 'package:proof_map/extensions/string_extension.dart';
 import 'package:proof_map/utils/messages.dart' as messages;
 
-enum BinaryValue { binaryOne, binaryZero, redundant }
+enum BinaryValue { one, zero, dontCare }
 
 extension BinaryValueRepresentation on BinaryValue {
   /// Returns 1 if the binaryValue is BinaryValue.one,
@@ -10,11 +10,11 @@ extension BinaryValueRepresentation on BinaryValue {
   /// and x if it is BinaryValue.redundant
   String get representation {
     switch (this) {
-      case BinaryValue.binaryOne:
+      case BinaryValue.one:
         return "1";
-      case BinaryValue.binaryZero:
+      case BinaryValue.zero:
         return "0";
-      case BinaryValue.redundant:
+      case BinaryValue.dontCare:
         return "-";
       default:
         return "?";
@@ -32,11 +32,11 @@ extension BinaryValueRepresentation on BinaryValue {
           .format([(1 << numberOfBits) - 1, integer]));
     }
     List<BinaryValue> binaryRepresentation =
-        List.filled(numberOfBits, BinaryValue.binaryZero);
+        List.filled(numberOfBits, BinaryValue.zero);
 
     for (int i = numberOfBits - 1; i >= 0; i--) {
       binaryRepresentation[i] =
-          integer % 2 == 0 ? BinaryValue.binaryZero : BinaryValue.binaryOne;
+          integer % 2 == 0 ? BinaryValue.zero : BinaryValue.one;
       integer ~/= 2;
     }
 

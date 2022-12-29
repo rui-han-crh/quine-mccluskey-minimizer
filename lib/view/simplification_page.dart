@@ -1,18 +1,10 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
-import 'package:proof_map/model/joined_term.dart';
-import 'package:proof_map/model/literal_term.dart';
 import 'package:proof_map/model/model.dart';
-import 'package:proof_map/model/answer.dart';
-import 'package:proof_map/model/parser.dart';
-import 'package:proof_map/view/dropdown_expression_form.dart';
-import 'package:proof_map/view/expression_text_fields/algebraic_expression_textfield.dart';
-import 'package:proof_map/view/expanded_result_text.dart';
+import 'package:proof_map/view/checkbox_with_title.dart';
 import 'package:proof_map/view/expression_input_tabs.dart';
-import 'package:proof_map/view/implicant_table.dart';
 import 'package:proof_map/view/solution_slide.dart';
-import 'package:proof_map/view/submit_button.dart';
-import 'package:proof_map/view/expression_text_fields/minterms_expression_textfield.dart.dart';
-import 'package:proof_map/view/expression_text_fields/expression_text_field.dart';
 import 'package:proof_map/view/utils/expression_form.dart';
 
 class SimplicationPage extends StatefulWidget {
@@ -25,10 +17,18 @@ class SimplicationPage extends StatefulWidget {
 
 class SimplicationPageState extends State<SimplicationPage> {
   final EdgeInsets paddingInsets = const EdgeInsets.all(10.0);
-  Answer _answer = const Answer.empty();
+  bool toGenerateKMap = false;
+  // will be updated
+  late SolutionSlide solutionSlide = SolutionSlide(
+    generateKMap: toGenerateKMap,
+  );
+
+  bool mintermsStartAsFolded = false;
+  bool maxtermsStartAsFolded = false;
 
   @override
   Widget build(BuildContext context) {
+    onPress();
     return Scaffold(
       backgroundColor: Theme.of(context).primaryColor,
       body: Row(
@@ -55,36 +55,64 @@ class SimplicationPageState extends State<SimplicationPage> {
                 Flexible(
                   child: ExpressionInputTabs(widget._model),
                 ),
+                CheckboxWithTitle(
+                  title: "Generate Karnaugh Map",
+                  startingBooleanValue: toGenerateKMap,
+                  onChecked: (value) => toGenerateKMap = value,
+                ),
                 SubmitButton(
                     model: widget._model,
                     expressionForm: widget._model.expressionForm,
-                    setState: () => setState(
-                        (() => _answer = widget._model.storage.answer))),
+                    setStateCallback: onPress),
               ],
             ),
           ),
           // Right of row
           Expanded(
             flex: 6,
-            child: SolutionSlide(answer: _answer),
+            child: solutionSlide,
           ),
         ],
       ),
     );
   }
+
+  void onPress() {
+    setState(
+      (() {
+        solutionSlide = SolutionSlide(
+          // a key must be specified to induce a redraw on the child
+          key: ValueKey(widget._model.combinationalSolverState.answer),
+          answer: widget._model.combinationalSolverState.answer,
+          generateKMap: toGenerateKMap,
+          mintermsStartAsFolded: mintermsStartAsFolded,
+          maxtermsStartAsFolded: maxtermsStartAsFolded,
+          onFoldMintermsTable: (value) => mintermsStartAsFolded = value,
+          onFoldMaxtermsTable: (value) => maxtermsStartAsFolded = value,
+        );
+      }),
+    );
+  }
 }
 
-class SubmitButton extends StatelessWidget {
+class SubmitButton extends StatefulWidget {
   final ExpressionForm expressionForm;
   final Model model;
-  final void Function() setState;
+  final void Function() setStateCallback;
 
   const SubmitButton(
       {required this.expressionForm,
       required this.model,
-      required this.setState,
+      required this.setStateCallback,
       Key? key})
       : super(key: key);
+
+  @override
+  State<SubmitButton> createState() => SubmitButtonState();
+}
+
+class SubmitButtonState extends State<SubmitButton> {
+  bool isSubmitted = false;
 
   @override
   Widget build(BuildContext context) {
@@ -101,25 +129,48 @@ class SubmitButton extends StatelessWidget {
               Theme.of(context).colorScheme.onSecondary,
             ),
           ),
-          child: const Text("Submit",
-              style: TextStyle(fontWeight: FontWeight.bold)),
+          child: isSubmitted
+              ? const SizedBox.square(
+                  dimension: 20,
+                  child: CircularProgressIndicator(color: Colors.white),
+                )
+              : const Text("Submit",
+                  style: TextStyle(fontWeight: FontWeight.bold)),
         ),
       ),
     );
   }
 
-  void onSubmit() {
-    switch (expressionForm) {
+  void onSubmit() async {
+    // push the current state of the model to the stack, rendering it immutable
+    // in the history. A new state is created to be mutated upon
+    widget.model.pushCombinationalSolverState();
+    setState(() {
+      log("Submitted");
+      isSubmitted = true;
+    });
+
+    switch (widget.expressionForm) {
       case ExpressionForm.algebraic:
-        model.solveAlgebraic(model.storage.algebraicExpression).then((answer) {
-          model.replace(answer: answer);
-          setState();
-        });
+        await widget.model
+            .solveAlgebraic(
+                widget.model.combinationalSolverState.algebraicExpression)
+            .then(
+          (answer) {
+            widget.model.combinationalSolverState.answer = answer;
+            log("answered: $answer");
+            setState(() {
+              isSubmitted = false;
+            });
+            widget.setStateCallback();
+          },
+        );
         break;
       case ExpressionForm.minterms:
         break;
       case ExpressionForm.maxterms:
         break;
     }
+    log("Done");
   }
 }
