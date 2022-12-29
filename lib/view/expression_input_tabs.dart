@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:proof_map/model/model.dart';
 import 'package:proof_map/view/expression_text_fields/algebraic_expression_textfield.dart';
@@ -45,13 +47,17 @@ class _ExpressionInputTabs extends State<ExpressionInputTabs> {
           children: [
             AlgebraicExpressionTextField(model: widget._model),
             Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                child: MintermsExpressionTextfield()),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              child: MintermsExpressionTextfield(
+                model: widget._model,
+              ),
+            ),
             Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                child: MaxtermsExpressionTextfield()),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              child: MaxtermsExpressionTextfield(
+                model: widget._model,
+              ),
+            ),
           ],
         ),
       ),
@@ -65,6 +71,7 @@ class _ExpressionInputTabs extends State<ExpressionInputTabs> {
         break;
       case 1:
         widget._model.expressionForm = ExpressionForm.minterms;
+        log(widget._model.expressionForm.toString());
         break;
       case 2:
         widget._model.expressionForm = ExpressionForm.maxterms;

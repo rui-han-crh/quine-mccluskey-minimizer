@@ -1,13 +1,24 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:proof_map/model/model.dart';
 import 'package:proof_map/view/expression_text_fields/indices_row.dart';
 import 'package:proof_map/view/expression_text_fields/variable_row.dart';
 
 abstract class ExpressionTextField extends StatefulWidget {
-  ExpressionTextField({super.key});
-  final TextEditingController indicesTextController = TextEditingController();
-  final TextEditingController variablesTextController = TextEditingController();
+  ExpressionTextField({
+    super.key,
+    required this.model,
+    required this.onVariablesFocusLost,
+    required this.onIndicesFocusLost,
+  });
+
+  final Model model;
+  final Function(String) onVariablesFocusLost;
+  final Function(String) onIndicesFocusLost;
+
+  TextEditingController get indicesTextController;
+  TextEditingController get variablesTextController;
 
   @override
   State<ExpressionTextField> createState();
@@ -40,7 +51,8 @@ abstract class ExpressionTextFieldState extends State<ExpressionTextField> {
                   children: [
                     IntrinsicHeight(
                       // all children in the VariableRow must have the same height
-                      child: VariableRow(widget.variablesTextController),
+                      child: VariableRow(widget.variablesTextController,
+                          onFocusLost: widget.onVariablesFocusLost),
                     ),
                     const SizedBox(height: 10),
                     IntrinsicHeight(
@@ -48,7 +60,8 @@ abstract class ExpressionTextFieldState extends State<ExpressionTextField> {
                       child: IndicesRow(
                           termPrefix: termPrefix,
                           termHintText: termHintText,
-                          indicesTextController: widget.indicesTextController),
+                          indicesTextController: widget.indicesTextController,
+                          onFocusLost: widget.onIndicesFocusLost),
                     ),
                   ],
                 ),

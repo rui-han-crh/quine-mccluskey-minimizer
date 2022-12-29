@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:proof_map/model/model.dart';
 import 'package:proof_map/utils/messages.dart' as messages;
 
@@ -51,6 +52,9 @@ class _AlgebraicExpressionTextFieldState
           ..selection = TextSelection.collapsed(offset: offset);
       },
       focusNode: _focusNode,
+      inputFormatters: [
+        FilteringTextInputFormatter.allow(RegExp(r"[a-zA-Z0-9\+\-\(\)·\*\']"))
+      ],
       style: const TextStyle(fontSize: 20),
       decoration: InputDecoration(
         hintText: messages.enterExpressionMessage,

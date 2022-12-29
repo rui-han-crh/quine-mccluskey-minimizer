@@ -9,7 +9,9 @@ class ImmutableCombinationalSolverState extends CombinationalSolverState {
   final Answer _answer;
   final String _algebraicExpression;
   final String _mintermVariables;
+  final String _mintermIndices;
   final String _maxtermVariables;
+  final String _maxtermIndices;
   final List<String> _termHeaders;
 
   @override
@@ -31,9 +33,21 @@ class ImmutableCombinationalSolverState extends CombinationalSolverState {
       throw UnsupportedError("ImmutableCombinationalSolverState is immutable");
 
   @override
+  String get maxtermIndices => _maxtermIndices;
+  @override
+  set maxtermIndices(String newMaxtermIndices) =>
+      throw UnsupportedError("ImmutableCombinationalSolverState is immutable");
+
+  @override
   String get mintermVariables => _mintermVariables;
   @override
   set mintermVariables(String newMintermVariables) =>
+      throw UnsupportedError("ImmutableCombinationalSolverState is immutable");
+
+  @override
+  String get mintermIndices => _mintermIndices;
+  @override
+  set mintermIndices(String newMintermIndices) =>
       throw UnsupportedError("ImmutableCombinationalSolverState is immutable");
 
   @override
@@ -47,12 +61,16 @@ class ImmutableCombinationalSolverState extends CombinationalSolverState {
       {required Answer answer,
       required String algebraicExpression,
       required String mintermVariables,
+      required String mintermIndices,
       required String maxtermVariables,
+      required String maxtermIndices,
       required List<String> termHeaders})
       : _answer = answer,
         _algebraicExpression = algebraicExpression,
         _mintermVariables = mintermVariables,
+        _mintermIndices = mintermIndices,
         _maxtermVariables = maxtermVariables,
+        _maxtermIndices = maxtermIndices,
         _termHeaders = termHeaders,
         super();
 

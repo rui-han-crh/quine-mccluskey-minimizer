@@ -1,9 +1,11 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:proof_map/model/answer.dart';
 import 'package:proof_map/model/model.dart';
 import 'package:proof_map/view/checkbox_with_title.dart';
 import 'package:proof_map/view/expression_input_tabs.dart';
+import 'package:proof_map/view/number_field_with_title.dart';
 import 'package:proof_map/view/solution_slide.dart';
 import 'package:proof_map/view/utils/expression_form.dart';
 
@@ -23,8 +25,9 @@ class SimplicationPageState extends State<SimplicationPage> {
     generateKMap: toGenerateKMap,
   );
 
-  bool mintermsStartAsFolded = false;
-  bool maxtermsStartAsFolded = false;
+  bool mintermsStartAsFolded = true;
+  bool maxtermsStartAsFolded = true;
+  int timeoutSeconds = 10;
 
   @override
   Widget build(BuildContext context) {
@@ -55,15 +58,22 @@ class SimplicationPageState extends State<SimplicationPage> {
                 Flexible(
                   child: ExpressionInputTabs(widget._model),
                 ),
+                NumberFieldWithTitle(
+                  title: "Timeout (seconds)",
+                  hintText: "15",
+                  onFocusLost: (value) => timeoutSeconds = value ?? 15,
+                ),
                 CheckboxWithTitle(
                   title: "Generate Karnaugh Map",
                   startingBooleanValue: toGenerateKMap,
                   onChecked: (value) => toGenerateKMap = value,
                 ),
                 SubmitButton(
-                    model: widget._model,
-                    expressionForm: widget._model.expressionForm,
-                    setStateCallback: onPress),
+                  model: widget._model,
+                  expressionForm: widget._model.expressionForm,
+                  setStateCallback: onPress,
+                  timeOutSeconds: timeoutSeconds,
+                ),
               ],
             ),
           ),
@@ -99,11 +109,13 @@ class SubmitButton extends StatefulWidget {
   final ExpressionForm expressionForm;
   final Model model;
   final void Function() setStateCallback;
+  final int timeOutSeconds;
 
   const SubmitButton(
       {required this.expressionForm,
       required this.model,
       required this.setStateCallback,
+      required this.timeOutSeconds,
       Key? key})
       : super(key: key);
 
@@ -146,19 +158,30 @@ class SubmitButtonState extends State<SubmitButton> {
     // in the history. A new state is created to be mutated upon
     widget.model.pushCombinationalSolverState();
     setState(() {
-      log("Submitted");
       isSubmitted = true;
     });
 
-    switch (widget.expressionForm) {
+    log("Minterm variables are: ${widget.model.combinationalSolverState.mintermVariables}");
+    log("Minterm indices are: ${widget.model.combinationalSolverState.mintermIndices}");
+
+    switch (widget.model.expressionForm) {
       case ExpressionForm.algebraic:
+        if (widget.model.combinationalSolverState.algebraicExpression == "") {
+          setState(() {
+            isSubmitted = false;
+          });
+          return;
+        }
         await widget.model
             .solveAlgebraic(
-                widget.model.combinationalSolverState.algebraicExpression)
+                widget.model.combinationalSolverState.algebraicExpression,
+                timeoutSeconds: widget.timeOutSeconds)
             .then(
           (answer) {
-            widget.model.combinationalSolverState.answer = answer;
-            log("answered: $answer");
+            if (answer != const Answer.empty()) {
+              widget.model.combinationalSolverState.answer = answer;
+            }
+
             setState(() {
               isSubmitted = false;
             });
@@ -167,10 +190,34 @@ class SubmitButtonState extends State<SubmitButton> {
         );
         break;
       case ExpressionForm.minterms:
+        if (widget.model.combinationalSolverState.mintermVariables.isEmpty ||
+            widget.model.combinationalSolverState.mintermIndices.isEmpty) {
+          setState(() {
+            isSubmitted = false;
+          });
+          return;
+        }
+
+        await widget.model
+            .solveMinterms(
+                widget.model.combinationalSolverState.mintermVariables,
+                widget.model.combinationalSolverState.mintermIndices,
+                timeoutSeconds: widget.timeOutSeconds)
+            .then(
+          (answer) {
+            if (answer != const Answer.empty()) {
+              widget.model.combinationalSolverState.answer = answer;
+            }
+
+            setState(() {
+              isSubmitted = false;
+            });
+            widget.setStateCallback();
+          },
+        );
         break;
       case ExpressionForm.maxterms:
         break;
     }
-    log("Done");
   }
 }

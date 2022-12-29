@@ -12,8 +12,14 @@ abstract class CombinationalSolverState {
   String get mintermVariables;
   set mintermVariables(String newMintermVariables);
 
+  String get mintermIndices;
+  set mintermIndices(String newMintermIndices);
+
   String get maxtermVariables;
   set maxtermVariables(String newMaxtermVariables);
+
+  String get maxtermIndices;
+  set maxtermIndices(String newMintermIndices);
 
   List<String> get termHeaders;
   set termHeaders(List<String> newTermHeaders);

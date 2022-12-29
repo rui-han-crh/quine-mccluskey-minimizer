@@ -1,11 +1,22 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:proof_map/view/expression_text_fields/multiline_text_field.dart';
 
-class VariableRow extends StatelessWidget {
-  final TextEditingController _variablesTextController;
-  const VariableRow(this._variablesTextController, {Key? key})
-      : super(key: key);
+class VariableRow extends StatefulWidget {
+  final void Function(String)? onFocusLost;
+  final TextEditingController variablesTextController;
 
+  const VariableRow(
+    this.variablesTextController, {
+    Key? key,
+    this.onFocusLost,
+  }) : super(key: key);
+
+  @override
+  State<VariableRow> createState() => _VariableRowState();
+}
+
+class _VariableRowState extends State<VariableRow> {
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -19,7 +30,11 @@ class VariableRow extends StatelessWidget {
         ),
         MultilineTextField(
           "Variables",
-          textController: _variablesTextController,
+          textController: widget.variablesTextController,
+          inputFormatters: [
+            FilteringTextInputFormatter.allow(RegExp(r"[a-zA-Z, ]")),
+          ],
+          onFocusLost: widget.onFocusLost,
         ),
         const Align(
             alignment: Alignment.bottomLeft,
