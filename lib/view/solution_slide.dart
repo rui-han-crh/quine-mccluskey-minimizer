@@ -186,16 +186,7 @@ class ExpressionAnswerTable extends StatelessWidget {
       },
       children: [
         // First Row
-        TableRow(
-          children: [
-            const TableCell(
-              child: ExpressionResultTextContainer("Simplified Expression"),
-            ),
-            TableCell(
-              child: ExpressionResultTextContainer(answer.simplestForm),
-            ),
-          ],
-        ),
+
         // Second row
         TableRow(
           children: [

@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:proof_map/app_object.dart';
 import 'package:proof_map/exceptions/invalid_argument_exception.dart';
 import 'package:proof_map/extensions/string_extension.dart';
@@ -72,8 +70,64 @@ class Parser extends AppObject {
     return JoinedTerm(isConjunction: false, terms: terms);
   }
 
+  /// Parses a string of maxterm indices with the total amount of variables
+  /// to a boolean expression. </br>
+  /// Throws InvalidArgumentException if indices are out of bounds with respect
+  /// to the maximum number of maxterms that the variables can accomodate. </br>
+  /// Throws InvalidArgumentException if either variables or indices are empty
+  /// strings.
+  Term parseMaxterms(String variables, String indices) {
+    if (variables.isEmpty) {
+      throw InvalidArgumentException(
+          messages.cannotBeEmptyString.format("Variables"));
+    }
+
+    if (!isValid(variablesRegex, variables)) {
+      throw InvalidArgumentException(
+          messages.notValid.format([variables, "Variables"]));
+    }
+
+    if (indices.isEmpty) {
+      throw InvalidArgumentException(
+          messages.cannotBeEmptyString.format("Maxterm indices"));
+    }
+
+    if (!isValid(mintermIndicesRegex, indices)) {
+      throw InvalidArgumentException(
+          messages.notValid.format([indices, "Maxterm indices"]));
+    }
+
+    Iterable<LiteralTerm> literals =
+        variables.split(",").map((e) => LiteralTerm.fromStatement(e.trim()));
+
+    Iterable<Iterable<BinaryValue>> binaryValues;
+    try {
+      binaryValues = indices
+          .split(",")
+          .map((e) => BinaryValueRepresentation.fromInteger(
+              int.parse(e), literals.length))
+          .toList();
+    } on InvalidArgumentException {
+      rethrow;
+    }
+
+    List<Term> terms = [];
+    for (Iterable<BinaryValue> binaryValue in binaryValues) {
+      terms.add(
+        JoinedTerm(
+            isConjunction: false,
+            terms: Implicant.create(Map.fromIterables(literals, binaryValue))
+                .terms
+                .map((e) => e.negate())),
+      );
+    }
+
+    return JoinedTerm(isConjunction: true, terms: terms);
+  }
+
   Term parseAlgebraic(String expression) {
-    if (expression.isEmpty) {
+    if (expression.isEmpty ||
+        expression.replaceAll(RegExp(r"[*·+\'\,]"), "").isEmpty) {
       throw ArgumentError.value(expression);
     }
 
@@ -88,7 +142,6 @@ class Parser extends AppObject {
     List<Term> terms = initialTerms.toList();
     while (expressionIterator.moveNext()) {
       String current = expressionIterator.current;
-      log("Current ${current.toString()}");
       switch (current) {
         case "(":
           // next part is a nested expression
@@ -154,6 +207,19 @@ class Parser extends AppObject {
     }
 
     return JoinedTerm(isConjunction: isConjunction, terms: terms);
+  }
+
+  String parseMintermsToMaxterms(String variables, String mintermIndices) {
+    int numberOfVariables = variables.split(",").length;
+    int numberOfMinterms = 1 << numberOfVariables;
+    Set<int> minterms = mintermIndices.split(",").map(int.parse).toSet();
+    return List.generate(numberOfMinterms, (i) => i)
+        .where((e) => !minterms.contains(e))
+        .join(",");
+  }
+
+  String parseMaxtermsToMinterms(String variables, String maxtermIndices) {
+    return parseMintermsToMaxterms(variables, maxtermIndices);
   }
 
   /// Verifies if the string parsed, `stringToVerify`, matches the constraints

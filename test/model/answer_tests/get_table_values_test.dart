@@ -12,7 +12,7 @@ import '../../presets/preset_terms.dart';
 void main() {
   test(
       'Given an answer generated from A · B · C, when finding maxterms, '
-      'then produces 001 to 111 of ABC ', () async {
+      'then produces 000 to 110 of ABC ', () async {
     // ARRANGE
     Term terms = termA.conjunction(termB, termC);
     Answer answer = Answer(
@@ -26,13 +26,13 @@ void main() {
 
     // ASSERT
     expect(mintermsABC, [
+      ["0", "0", "0"],
       ["0", "0", "1"],
       ["0", "1", "0"],
       ["0", "1", "1"],
       ["1", "0", "0"],
       ["1", "0", "1"],
       ["1", "1", "0"],
-      ["1", "1", "1"],
     ]);
   });
 

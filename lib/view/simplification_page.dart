@@ -27,7 +27,7 @@ class SimplicationPageState extends State<SimplicationPage> {
 
   bool mintermsStartAsFolded = true;
   bool maxtermsStartAsFolded = true;
-  int timeoutSeconds = 10;
+  int timeoutSeconds = 15;
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +61,12 @@ class SimplicationPageState extends State<SimplicationPage> {
                 NumberFieldWithTitle(
                   title: "Timeout (seconds)",
                   hintText: "15",
-                  onFocusLost: (value) => timeoutSeconds = value ?? 15,
+                  onChange: (value) {
+                    setState(() {
+                      timeoutSeconds = value ?? 15;
+                      log("timeoutSeconds set to $value");
+                    });
+                  },
                 ),
                 CheckboxWithTitle(
                   title: "Generate Karnaugh Map",
@@ -163,6 +168,7 @@ class SubmitButtonState extends State<SubmitButton> {
 
     log("Minterm variables are: ${widget.model.combinationalSolverState.mintermVariables}");
     log("Minterm indices are: ${widget.model.combinationalSolverState.mintermIndices}");
+    log("Timeout: ${widget.timeOutSeconds}");
 
     switch (widget.model.expressionForm) {
       case ExpressionForm.algebraic:
@@ -217,6 +223,31 @@ class SubmitButtonState extends State<SubmitButton> {
         );
         break;
       case ExpressionForm.maxterms:
+        if (widget.model.combinationalSolverState.maxtermVariables.isEmpty ||
+            widget.model.combinationalSolverState.maxtermIndices.isEmpty) {
+          setState(() {
+            isSubmitted = false;
+          });
+          return;
+        }
+
+        await widget.model
+            .solveMaxterms(
+                widget.model.combinationalSolverState.maxtermVariables,
+                widget.model.combinationalSolverState.maxtermIndices,
+                timeoutSeconds: widget.timeOutSeconds)
+            .then(
+          (answer) {
+            if (answer != const Answer.empty()) {
+              widget.model.combinationalSolverState.answer = answer;
+            }
+
+            setState(() {
+              isSubmitted = false;
+            });
+            widget.setStateCallback();
+          },
+        );
         break;
     }
   }

@@ -52,7 +52,7 @@ class Answer extends AppObject {
       ..sort((a, b) => a.binaryString.compareTo(b.binaryString));
 
     return implicants
-        .map((e) => e.binaryRepresentation.map((e) => e.representation));
+        .map((e) => e.mintermBinaryRepresentation.map((e) => e.representation));
   }
 
   Iterable<Iterable<String>> maxtermTableValues(
@@ -74,10 +74,10 @@ class Answer extends AppObject {
     List<Implicant> implicants = _conjunctiveNormalForm!
         .getMaxterms(headerTermsOrder)
         .toList()
-      ..sort((a, b) => a.binaryString.compareTo(b.binaryString));
+      ..sort((a, b) => b.binaryString.compareTo(a.binaryString));
 
     return implicants
-        .map((e) => e.binaryRepresentation.map((e) => e.representation));
+        .map((e) => e.maxtermBinaryRepresentation.map((e) => e.representation));
   }
 
   /// Retrieves the essential prime implicants corresponding to the largest

@@ -4,7 +4,7 @@ import 'package:proof_map/utils/linear_programming/expression.dart';
 import 'package:proof_map/utils/linear_programming/expression_relation.dart';
 import 'package:proof_map/utils/messages.dart';
 
-const double bigM = 1.3407807929942596e+200;
+const double bigM = 1.3407807929942596e+300;
 
 /// Minimizes the objective function according to the functions provided in the
 /// constraint function. <br>

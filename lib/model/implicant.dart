@@ -37,12 +37,16 @@ class Implicant extends AppObject with EquatableMixin {
         .toList();
   }
 
-  /// Returns the binary representation as a list of BinaryValues
-  Iterable<BinaryValue> get binaryRepresentation => _terms.values;
+  /// Returns the minterm binary representation as a list of BinaryValues
+  Iterable<BinaryValue> get mintermBinaryRepresentation => _terms.values;
+
+  /// Returns the maxterm binary representation as a list of BinaryValues
+  Iterable<BinaryValue> get maxtermBinaryRepresentation => _terms.values
+      .map((e) => e == BinaryValue.zero ? BinaryValue.one : BinaryValue.zero);
 
   /// Returns the binary representaiton as a string of ones, zeros and dont-cares
   String get binaryString =>
-      binaryRepresentation.map((e) => e.representation).join();
+      mintermBinaryRepresentation.map((e) => e.representation).join();
 
   int get numberOfOnes => _numberOfOnes;
 

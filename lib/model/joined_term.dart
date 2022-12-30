@@ -308,7 +308,7 @@ class _ConjunctiveNormalForm extends ConjunctiveNormalForm {
     Iterable<Implicant> maxterms = getMaxterms();
 
     Iterable<Implicant> primeImplicants = quine_mccluskey.compute(maxterms);
-
+    log("CNF Done");
     assert(primeImplicants.isNotEmpty);
 
     if (primeImplicants.length == 1) {
@@ -343,9 +343,7 @@ class _DisjunctiveNormalForm extends DisjunctiveNormalForm {
   @override
   DisjunctiveNormalForm simplify() {
     Iterable<Implicant> minterms = getMinterms();
-
     Iterable<Implicant> primeImplicants = quine_mccluskey.compute(minterms);
-
     assert(primeImplicants.isNotEmpty);
 
     if (primeImplicants.length == 1) {

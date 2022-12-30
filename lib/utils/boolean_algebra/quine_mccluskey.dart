@@ -16,7 +16,7 @@ Iterable<Implicant> compute(Iterable<Implicant> startingMinterms) {
   // -> groups[0] is for implicants with 1 1s, groups[1] is for 2 1s, etc
 
   List<List<Pair<Implicant, bool>>> groups = List.generate(
-      startingMinterms.first.binaryRepresentation.length + 1, (_) => []);
+      startingMinterms.first.mintermBinaryRepresentation.length + 1, (_) => []);
 
   for (Implicant implicant in startingMinterms) {
     groups[implicant.numberOfOnes].add(Pair(implicant, false));
@@ -138,8 +138,8 @@ Iterable<Implicant> compute(Iterable<Implicant> startingMinterms) {
 }
 
 bool _isGreyCode(Implicant a, Implicant b) {
-  List<BinaryValue> binaryA = a.binaryRepresentation.toList();
-  List<BinaryValue> binaryB = b.binaryRepresentation.toList();
+  List<BinaryValue> binaryA = a.mintermBinaryRepresentation.toList();
+  List<BinaryValue> binaryB = b.mintermBinaryRepresentation.toList();
   int differenceCount = 0;
   for (int i = 0; i < binaryA.length; i++) {
     if (binaryA[i] != binaryB[i]) {
@@ -153,8 +153,8 @@ bool _isGreyCode(Implicant a, Implicant b) {
 /// don't-cares. <br>
 /// There should only be a difference of one 1-bit between a and b
 Implicant _expandImplicant(Implicant a, Implicant b) {
-  List<BinaryValue> binaryA = a.binaryRepresentation.toList();
-  List<BinaryValue> binaryB = b.binaryRepresentation.toList();
+  List<BinaryValue> binaryA = a.mintermBinaryRepresentation.toList();
+  List<BinaryValue> binaryB = b.mintermBinaryRepresentation.toList();
   List<LiteralTerm> terms = a.headerTerms;
   Map<LiteralTerm, BinaryValue> newTermMap = {};
   for (int i = 0; i < binaryA.length; i++) {

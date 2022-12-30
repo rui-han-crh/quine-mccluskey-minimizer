@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -10,11 +12,11 @@ class NumberFieldWithTitle extends StatefulWidget {
     this.textStyle,
     this.hintText,
     this.hintStyle,
-    this.onFocusLost,
+    this.onChange,
   }) : super(key: key);
 
   final String title;
-  final void Function(int?)? onFocusLost;
+  final Function(int?)? onChange;
   final double? width;
   final double? height;
   final TextStyle? textStyle;
@@ -26,18 +28,7 @@ class NumberFieldWithTitle extends StatefulWidget {
 }
 
 class NumberFieldWithTitleState extends State<NumberFieldWithTitle> {
-  final FocusNode _focusNode = FocusNode();
   final TextEditingController _textEditingController = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-    _focusNode.addListener(() {
-      if (!_focusNode.hasFocus) {
-        widget.onFocusLost?.call(int.tryParse(_textEditingController.text));
-      }
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,6 +53,7 @@ class NumberFieldWithTitleState extends State<NumberFieldWithTitle> {
             inputFormatters: <TextInputFormatter>[
               FilteringTextInputFormatter.digitsOnly
             ],
+            onChanged: (value) => widget.onChange?.call(int.tryParse(value)),
           ),
         ),
       ],
