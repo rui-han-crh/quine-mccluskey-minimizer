@@ -1,6 +1,6 @@
 # Quine McCluskey Minimizer
 
-![image](https://user-images.githubusercontent.com/15359033/210086706-d69d3ccc-c72e-4f5b-8159-f8a5e52c1cce.png)
+![image](https://user-images.githubusercontent.com/15359033/210096256-56ab2c9a-5e3e-4894-89b8-2bd55e644bd2.png)
 
 ## How to use
 
