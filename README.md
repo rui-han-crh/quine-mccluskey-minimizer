@@ -1,4 +1,12 @@
-# Quine McCluskey Minimiser
+# Quine McCluskey Minimizer
+
+## How to use
+
+Click on the link in the `Release Tab` to the right of this webpage and download the zip file.
+
+Extract the zip file and double click on the `Quine-McCluskey-Minimizer.exe` file to open the program.
+
+The program has only been deployed on Windows. If you're using a MacOS or Linux, you might need to use Wine to open the exe file. Cross platform deployment coming soon.
 
 ## Overview
 This program is designed to accept a boolean expression and return a simplified expression, minimized via the Quine-McCluskey algorithm and other ancillary algorithms.
