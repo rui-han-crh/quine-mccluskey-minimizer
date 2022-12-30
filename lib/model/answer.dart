@@ -122,9 +122,11 @@ class Answer extends AppObject {
     ];
   }
 
+  // I removed the non-nullable assertion operator because as a hack to allow
+  // computation to speed up
   Answer(
-      {required DisjunctiveNormalForm disjunctiveNormalForm,
-      required ConjunctiveNormalForm conjunctiveNormalForm,
+      {DisjunctiveNormalForm? disjunctiveNormalForm,
+      ConjunctiveNormalForm? conjunctiveNormalForm,
       required Term simplestForm})
       : _disjunctiveNormalForm = disjunctiveNormalForm,
         _conjunctiveNormalForm = conjunctiveNormalForm,

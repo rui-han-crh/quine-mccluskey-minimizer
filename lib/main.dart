@@ -18,7 +18,7 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
   if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
-    setWindowTitle('Quine-McCluskey');
+    setWindowTitle('Quine-McCluskey Minimiser');
     setWindowMinSize(const Size(800, 650));
   }
   runApp(MyApp());

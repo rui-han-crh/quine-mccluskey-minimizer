@@ -11,12 +11,12 @@ class ImplicantTable extends StatefulWidget {
   final Iterable<Iterable<String>> tableValues;
   final void Function(List<String> newColumnHeaders) onColumnsChange;
 
-  const ImplicantTable(
-      {Key? key,
-      required this.tableHeaders,
-      required this.tableValues,
-      required this.onColumnsChange})
-      : super(key: key);
+  const ImplicantTable({
+    Key? key,
+    required this.tableHeaders,
+    required this.tableValues,
+    required this.onColumnsChange,
+  }) : super(key: key);
 
   @override
   State<ImplicantTable> createState() => _ImplicantTableState();

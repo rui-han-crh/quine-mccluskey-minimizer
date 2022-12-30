@@ -16,13 +16,13 @@ class KarnaughMap extends StatefulWidget {
   final Iterable<LiteralTerm> variableOrder;
   final Iterable<Implicant> essentialPrimeImplicants;
   late final Map<int, List<Pair<int, Implicant>>> termToEpiMap;
-  final bool rowTakesMoreSpace;
+  final bool transpose;
 
   KarnaughMap({
     Key? key,
     required this.variableOrder,
     required this.essentialPrimeImplicants,
-    this.rowTakesMoreSpace = true,
+    this.transpose = true,
   }) : super(key: key) {
     // Creates the map from minterm index to the implicants that cover it
     termToEpiMap = {};
@@ -72,13 +72,8 @@ class KarnaughMapState extends State<KarnaughMap> {
   void initState() {
     super.initState();
     int numberOfVariables = widget.variableOrder.length;
-    if (widget.rowTakesMoreSpace) {
-      yBits = numberOfVariables >> 1;
-      xBits = numberOfVariables - yBits;
-    } else {
-      xBits = numberOfVariables >> 1;
-      yBits = numberOfVariables - xBits;
-    }
+    yBits = numberOfVariables >> 1;
+    xBits = numberOfVariables - yBits;
 
     width = 1 << xBits;
     height = 1 << yBits;

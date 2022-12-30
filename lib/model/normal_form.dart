@@ -174,8 +174,7 @@ abstract class NormalForm extends AppObject {
                   ? BinaryValue.one
                   : joinedTerm.enclosedTerms.contains(element.negate())
                       ? BinaryValue.zero
-                      : throw TermNotFoundException(
-                          termNotFoundMessage.format(element.toString()))
+                      : BinaryValue.dontCare
           },
         )
       ];

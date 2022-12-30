@@ -20,6 +20,9 @@ class SimplicationPage extends StatefulWidget {
 class SimplicationPageState extends State<SimplicationPage> {
   final EdgeInsets paddingInsets = const EdgeInsets.all(10.0);
   bool toGenerateKMap = false;
+  bool toComputeDnf = true;
+  bool toComputeCnf = true;
+
   // will be updated
   late SolutionSlide solutionSlide = SolutionSlide(
     generateKMap: toGenerateKMap,
@@ -69,7 +72,17 @@ class SimplicationPageState extends State<SimplicationPage> {
                   },
                 ),
                 CheckboxWithTitle(
-                  title: "Generate Karnaugh Map",
+                  title: "Compute Disjunctive Normal Form",
+                  startingBooleanValue: toComputeDnf,
+                  onChecked: (value) => setState(() => toComputeDnf = value),
+                ),
+                CheckboxWithTitle(
+                  title: "Compute Conjunctive Normal Form",
+                  startingBooleanValue: toComputeCnf,
+                  onChecked: (value) => setState(() => toComputeCnf = value),
+                ),
+                CheckboxWithTitle(
+                  title: "Draw Karnaugh Maps",
                   startingBooleanValue: toGenerateKMap,
                   onChecked: (value) => toGenerateKMap = value,
                 ),
@@ -78,6 +91,8 @@ class SimplicationPageState extends State<SimplicationPage> {
                   expressionForm: widget._model.expressionForm,
                   setStateCallback: onPress,
                   timeOutSeconds: timeoutSeconds,
+                  toComputeCNF: toComputeCnf,
+                  toComputeDNF: toComputeDnf,
                 ),
               ],
             ),
@@ -115,12 +130,16 @@ class SubmitButton extends StatefulWidget {
   final Model model;
   final void Function() setStateCallback;
   final int timeOutSeconds;
+  final bool toComputeDNF;
+  final bool toComputeCNF;
 
   const SubmitButton(
       {required this.expressionForm,
       required this.model,
       required this.setStateCallback,
       required this.timeOutSeconds,
+      required this.toComputeDNF,
+      required this.toComputeCNF,
       Key? key})
       : super(key: key);
 
@@ -180,8 +199,11 @@ class SubmitButtonState extends State<SubmitButton> {
         }
         await widget.model
             .solveAlgebraic(
-                widget.model.combinationalSolverState.algebraicExpression,
-                timeoutSeconds: widget.timeOutSeconds)
+          widget.model.combinationalSolverState.algebraicExpression,
+          timeoutSeconds: widget.timeOutSeconds,
+          computeCnf: widget.toComputeCNF,
+          computeDnf: widget.toComputeDNF,
+        )
             .then(
           (answer) {
             if (answer != const Answer.empty()) {
@@ -206,9 +228,11 @@ class SubmitButtonState extends State<SubmitButton> {
 
         await widget.model
             .solveMinterms(
-                widget.model.combinationalSolverState.mintermVariables,
-                widget.model.combinationalSolverState.mintermIndices,
-                timeoutSeconds: widget.timeOutSeconds)
+          widget.model.combinationalSolverState.mintermVariables,
+          widget.model.combinationalSolverState.mintermIndices,
+          timeoutSeconds: widget.timeOutSeconds,
+          computeMaxterms: widget.toComputeCNF,
+        )
             .then(
           (answer) {
             if (answer != const Answer.empty()) {
@@ -235,7 +259,8 @@ class SubmitButtonState extends State<SubmitButton> {
             .solveMaxterms(
                 widget.model.combinationalSolverState.maxtermVariables,
                 widget.model.combinationalSolverState.maxtermIndices,
-                timeoutSeconds: widget.timeOutSeconds)
+                timeoutSeconds: widget.timeOutSeconds,
+                computeMinterms: widget.toComputeDNF)
             .then(
           (answer) {
             if (answer != const Answer.empty()) {

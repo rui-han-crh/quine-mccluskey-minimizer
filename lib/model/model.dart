@@ -36,7 +36,9 @@ class Model extends AppObject {
   }
 
   Future<Answer> solveAlgebraic(String expression,
-      {int timeoutSeconds = 10}) async {
+      {int timeoutSeconds = 10,
+      bool computeDnf = true,
+      bool computeCnf = true}) async {
     if (expression.isEmpty) {
       throw ArgumentError.value(
           expression, "expression", cannotBeEmptyString.format(["expression"]));
@@ -51,8 +53,14 @@ class Model extends AppObject {
       return const Answer.empty();
     }
 
-    Isolate isolate =
-        await Isolate.spawn(_simplifyToAnswer, [port.sendPort, expressionTerm]);
+    Isolate isolate = await Isolate.spawn(_simplifyToAnswer, [
+      port.sendPort,
+      expressionTerm,
+      null,
+      null,
+      computeDnf,
+      computeCnf,
+    ]);
 
     Future.delayed(Duration(seconds: timeoutSeconds), () {
       isolate.kill();
@@ -63,9 +71,9 @@ class Model extends AppObject {
   }
 
   Future<Answer> solveMinterms(String variables, String indices,
-      {int timeoutSeconds = 10}) async {
+      {int timeoutSeconds = 10, bool computeMaxterms = true}) async {
     Term mintermsExpression;
-    Term maxtermsExpression;
+    Term? maxtermsExpression;
 
     String indicesOfMaxterms =
         _parser.parseMintermsToMaxterms(variables, indices);
@@ -73,8 +81,10 @@ class Model extends AppObject {
     try {
       mintermsExpression =
           _constructExpression(variables, indices, isMinterms: true);
-      maxtermsExpression =
-          _constructExpression(variables, indicesOfMaxterms, isMinterms: false);
+      if (computeMaxterms) {
+        maxtermsExpression = _constructExpression(variables, indicesOfMaxterms,
+            isMinterms: false);
+      }
     } on InvalidArgumentException {
       return const Answer.empty();
     }
@@ -84,7 +94,9 @@ class Model extends AppObject {
       port.sendPort,
       mintermsExpression,
       mintermsExpression,
-      maxtermsExpression
+      maxtermsExpression,
+      true,
+      computeMaxterms,
     ]);
 
     Future.delayed(Duration(seconds: timeoutSeconds), () {
@@ -96,9 +108,9 @@ class Model extends AppObject {
   }
 
   Future<Answer> solveMaxterms(String variables, String indices,
-      {int timeoutSeconds = 10}) async {
+      {int timeoutSeconds = 10, bool computeMinterms = true}) async {
     Term maxtermsExpression;
-    Term mintermsExpression;
+    Term? mintermsExpression;
 
     String indicesOfMinterms =
         _parser.parseMaxtermsToMinterms(variables, indices);
@@ -106,8 +118,10 @@ class Model extends AppObject {
     try {
       maxtermsExpression =
           _constructExpression(variables, indices, isMinterms: false);
-      mintermsExpression =
-          _constructExpression(variables, indicesOfMinterms, isMinterms: true);
+      if (computeMinterms) {
+        mintermsExpression = _constructExpression(variables, indicesOfMinterms,
+            isMinterms: true);
+      }
     } on InvalidArgumentException {
       return const Answer.empty();
     }
@@ -117,7 +131,9 @@ class Model extends AppObject {
       port.sendPort,
       maxtermsExpression,
       mintermsExpression,
-      maxtermsExpression
+      maxtermsExpression,
+      computeMinterms,
+      true,
     ]);
 
     Future.delayed(Duration(seconds: timeoutSeconds), () {
@@ -155,23 +171,35 @@ class Model extends AppObject {
     return expression;
   }
 
+  // A mess: basically, this is an Isolate method that lives in a worker thread,
+  // the args is a list of arguments that are passed to the isolate. The first
+  // argument is the SendPort, which is used to send the result back to the
+  // main thread. The second argument is the expression, which is the expression
+  // to be simplified. The third argument is the expression in DNF, which is
+  // passed if the expression is already in DNF. The fourth argument is the
+  // expression in CNF, which is passed if the expression is already in CNF.
+  // The DNF and CNF may be null, if you want to compute them from the expression.
+  // The fifth argument is a boolean that indicates whether the DNF should be
+  // computed. The sixth argument is a boolean that indicates whether the CNF
+  // should be computed.
+  /// Args: [SendPort, expression, expressionCNF?, expressionDNF?, computeDNF, computeCNF]
   void _simplifyToAnswer(List<dynamic> args) async {
     SendPort responsePort = args[0];
     Term expression = args[1];
-    Term? expressionCNF;
-    Term? expressionDNF;
-    if (args.length > 2) {
-      expressionDNF = args[2];
-      expressionCNF = args[3];
-    }
+    Term? expressionDNF = args[2];
+    Term? expressionCNF = args[3];
+    bool computeDNF = args[4];
+    bool computeCNF = args[5];
 
     responsePort.send(Answer(
-        conjunctiveNormalForm:
-            expressionCNF?.toConjunctiveNormalForm().simplify() ??
-                expression.toConjunctiveNormalForm().simplify(),
-        disjunctiveNormalForm:
-            expressionDNF?.toDisjunctiveNormalForm().simplify() ??
-                expression.toDisjunctiveNormalForm().simplify(),
+        conjunctiveNormalForm: computeCNF
+            ? expressionCNF?.toConjunctiveNormalForm().simplify() ??
+                expression.toConjunctiveNormalForm().simplify()
+            : null,
+        disjunctiveNormalForm: computeDNF
+            ? expressionDNF?.toDisjunctiveNormalForm().simplify() ??
+                expression.toDisjunctiveNormalForm().simplify()
+            : null,
         simplestForm: expression));
 
     Isolate.exit();
