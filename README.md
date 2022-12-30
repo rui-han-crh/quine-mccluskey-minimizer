@@ -1,4 +1,4 @@
-# Quine McCluskey
+# Quine McCluskey Minimiser
 
 ## Overview
 This program is designed to accept a boolean expression and return a simplified expression, minimized via the Quine-McCluskey algorithm and other ancillary algorithms.
