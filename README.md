@@ -7,8 +7,27 @@ Dependencies are used (read [Acknowledgements](#acknowledgements)), but are unre
 
 The implementation of the Quine-McCluskey algorithm in this program, including the accompanying tests, have been written entirely by myself. To read more about the implementation details regarding the algorithm, see [Implementation Brief](#implementation-brief).
 
+## Features
+
+![image](https://user-images.githubusercontent.com/15359033/210086706-d69d3ccc-c72e-4f5b-8159-f8a5e52c1cce.png)
+
+
+Takes in either an algebraic expression, a sum of minterms expression or a product of maxterms expression and produces all of the Disjunctive Normal Form as a Sum-of-Products, a Conjunctive Normal Form as a Product-of-Sums, and the truth tables for the minterms and maxterms and optionally draws the Karnaugh Maps if required.
+
+The truth tables can be rearranged on the fly.
+
+![dragging_table_minterms](https://user-images.githubusercontent.com/15359033/210086714-b78a436e-eb8c-4c2d-8f67-db0eb20fad84.gif)
+
+Optionally, either the DNF or CNF can be omitted from the computation, eliminating unnecessary compute time and expediting the computation. (You cannot disable the DNF compute in the minterms tab or the CNF compute in the maxterms tab, the status of checkboxes will not have any effect.)
+
+![image](https://user-images.githubusercontent.com/15359033/210091282-19b2d0c3-b753-411b-9bb3-c4e19795f92f.png)
+
+For extremely complicated expressions (above 9 variables), an approximation may be used to minimise the prime implicants. This still produces the exact essential prime implicants most of the time, but on occasion may produce prime implicants that can be further reduced by combination. This is usually no more than three groups which can be combined into fewer essential prime implicants.
+
+Additionally, extremely complex expressions (above 10 variables) may fail to solve under this algorithm. A timeout (defaulted to 15 seconds) can be specified to stop the computation if it takes too long. Increase the timeout seconds to allow the computation to run longer.
+
 ## Acknowledgements
-Dependency packages used are `flutter`, `equatable 2.0.0` and `sprintf 7.0.0`.
+Dependency packages used are `flutter`, `equatable 2.0.0`, `sprintf 7.0.0` and `window_size`.
 
 ## Implementation Brief
 
