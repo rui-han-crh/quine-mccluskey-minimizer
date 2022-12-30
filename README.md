@@ -84,7 +84,7 @@ After the intermediate DNF is found, we perform a recursive permutation over the
 
 Quine-McCluskey is then applied on this set of minterms, iteratively regrouping them again until all prime implicants are recovered.
 
-Finding essential prime implicants over a set of prime implicants reduces to a set cover problem, which reduces to a vertex cover problem. We may use linear programming by applying the [Simplex Method](https://en.wikipedia.org/wiki/Simplex_algorithm) over a set of linear constraints, such that it represents our problem domain. The specific method is **0-1 Integer Linear Programming via Simplex Big-M method**.
+Finding essential prime implicants over a set of prime implicants is a set cover problem. We may use linear programming by applying the [Simplex Method](https://en.wikipedia.org/wiki/Simplex_algorithm) over a set of linear constraints, such that it represents our problem domain. The specific method is **0-1 Integer Linear Programming via Simplex Big-M method**.
 
 The specifics of the Simplex Algorithm will be omitted from this brief, but I will illustrate how we may set up the objective function and constraint equations to begin solving for the solution.
 
@@ -143,3 +143,8 @@ Using integer linear programming via Simplex Method, the set cover problem can e
 
 The essential prime implicants are then reconstructed and joined by disjunction, representing the final simplified DNF expression of the given Boolean Algebra expression.
 
+--------------------------------
+
+**Note that Quine-McCluskey is not the best algorithm for minimising an expression of boolean variables.** 
+
+This program becomes intensely slow beyond a 10 variable input. A timeout is implemented to kill the runaway worker thread if a computation takes too long. For an incredibly more efficient algorithm, check out Espresso and the Logic Friday program.
