@@ -30,7 +30,7 @@ Optionally, either the DNF or CNF can be omitted from the computation, eliminati
 
 ![image](https://user-images.githubusercontent.com/15359033/210091282-19b2d0c3-b753-411b-9bb3-c4e19795f92f.png)
 
-For extremely complicated expressions (above 9 variables), an approximation may be used to minimise the prime implicants. This still produces the exact essential prime implicants most of the time, but on occasion may produce prime implicants that can be further reduced by combination. This is usually no more than three groups which can be combined into fewer essential prime implicants.
+For extremely complicated expressions (above 9 variables), an approximation may be used to minimise the prime implicants, but only if an exact iterative algorithm is unable to find the answer in a set number of iterations. This still produces the exact essential prime implicants most of the time, but on occasion may produce prime implicants that can be further reduced by combination. This is usually no more than three groups which can be combined into fewer essential prime implicants.
 
 Additionally, extremely complex expressions (above 10 variables) may fail to solve under this algorithm. A timeout (defaulted to 15 seconds) can be specified to stop the computation if it takes too long. Increase the timeout seconds to allow the computation to run longer.
 
